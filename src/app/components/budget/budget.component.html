@@ -1,0 +1,194 @@
+<div class="container-fluid">
+    <div class="row bloc">
+        <div class="col-md-2 col-sm-2 col-xs-0 col-lg-2"></div>
+        <div class="col-md-8 col-sm-8 col-xs-0 col-lg-8">
+            <div class="row">
+                <div class="col-12">
+                    <button class="addOpenModal" (click)="openAddModal(template)">Ajouter un budget</button>
+                </div>
+                <table *ngIf="budgets.length != 0" class="table table-dark">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Dotation de Base</th>
+                        <th scope="col">Dotation de Recherche</th>
+                        <th scope="col">Laboratoire</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let budget of budgets;let i=index">
+                        <th scope="row">{{ budget.id }} </th>
+                        <td>{{ budget.db}} </td>
+                        <td>{{ budget.dr}} </td>
+                        <td>{{ budget.laboratory.name}} </td>
+                        <td>
+                            <i (click)="openEditModal(templateEdit,budget.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
+                            <i (click)="openDetailsModal(templateDetails,budget.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
+                            <i (click)="openDeleteModal(templateDelete,budget.id)" class="fa-solid fa-trash-can"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+                <div *ngIf="budgets.length == 0"  class="col-12 empty">
+                    <hr>
+                    <p class="emptyText">Aucun budget ajouté pour le moment.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-2 col-xs-0 col-lg-2"></div>
+    </div>
+</div>
+
+
+
+
+<ng-template #template>
+    <div class="addModal"> 
+        <div class="modal-header">
+            <h5 class="modal-title pull-left">Ajouter un budget</h5>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+                <span aria-hidden="true" class="visually-hidden">&times;</span>  
+            </button>  
+        </div>  
+        <div class="modal-body">
+            <div >
+                <div class="form-group">
+                    <label for="">Dotation de base</label>        
+                    <input [(ngModel)] = "budgetItem.db" type="number" min="0" class="form-control" placeholder="Dotation de base du budget">  
+                </div>
+                <div class="form-group">
+                    <label for="">Dotation de Recherche</label>        
+                    <input [(ngModel)] = "budgetItem.dr" type="number" min="0" class="form-control" placeholder="Dotation de Recherche du budget">  
+                </div>
+                <div class="form-group">
+                    <label for="">Année </label>        
+                    <input  type="number" min="0" [(ngModel)] = "budgetItem.year" class="form-control" placeholder="Année du budget : 2020">  
+                </div>
+                <div class="form-group">
+                    <label for="inputState">Laboratoire du budget </label>
+                    <select [(ngModel)]="selectedLaboratoryId" id="inputState" class="form-control">
+                      <option [ngValue]="null" selected>Choisir...</option>
+                      <option  *ngFor="let labo of laboratories;let i=index" [ngValue]="labo.id">{{ labo.name }} </option>
+                    </select>
+                    <small *ngIf="laboratories.length==0" style="color: red !important;" id="emailHelp" class="form-text text-muted">
+                        Aucun laboratoire disponible pour le moment , vous devez en ajouter pour selectionner *.
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-primary" (click)="add()" >Ajouter</button>  
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateEdit>
+    <div *ngIf="currentBudget != null" class="addModal"> 
+        <div class="modal-header">
+            <h5 class="modal-title pull-left">Modification du budget </h5>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalEditRef?.hide()">
+                <span aria-hidden="true" class="visually-hidden">&times;</span>  
+            </button>  
+        </div>  
+        <div class="modal-body">
+            <div >
+                <div class="form-group">
+                    <label for="">Dotation de base</label>        
+                    <input [(ngModel)] = "currentBudget.db" type="number" min="0" class="form-control" placeholder="Dotation de base du budget">  
+                </div>
+                <div class="form-group">
+                    <label for="">Dotation de Recherche</label>        
+                    <input [(ngModel)] = "currentBudget.dr" type="number" min="0" class="form-control" placeholder="Dotation de Recherche du budget">  
+                </div>
+                <div class="form-group">
+                    <label for="">Année </label>        
+                    <input  type="number" min="0" [(ngModel)] = "currentBudget.year" class="form-control" placeholder="Année du budget : 2020">  
+                </div>
+                <div class="form-group">
+                    <label for="inputState">Laboratoire du budget </label>
+                    <select [(ngModel)]="selectedLaboratoryId" id="inputState" class="form-control">
+                      <option [ngValue]="null" selected>Choisir...</option>
+                      <option  *ngFor="let labo of laboratories;let i=index" [ngValue]="labo.id">{{ labo.name }} </option>
+                    </select>
+                    <small *ngIf="laboratories.length==0" style="color: red !important;" id="emailHelp" class="form-text text-muted">
+                        Aucun laboratoire disponible pour le moment , vous devez en ajouter pour selectionner *.
+                    </small>
+                    <small class="form-text text-muted">
+                        Laboratoire actuel : <span style="font-weight: bold;"> {{ currentBudget.laboratory.name }} </span>
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-primary" (click)="edit()" >Modifier</button>  
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateDelete>
+    <div *ngIf="currentBudget != null" class="addModal"> 
+        <div class="modal-header">
+            <h5 class="modal-title pull-left">Suppresion du budget </h5>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDeleteRef?.hide()">
+                <span aria-hidden="true" class="visually-hidden">&times;</span>  
+            </button>  
+        </div>  
+        <div class="modal-body">
+            <div >
+                <div class="form-group">
+                    <p>
+                        Voulez-vous vraiment Supprimer ce budget ?
+                    </p>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" (click)="delete()" >Oui</button>  
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateDetails>
+    <div *ngIf="currentBudget != null" class="addModal"> 
+        <div class="modal-header">
+            <h4 class="modal-title pull-left">Details du buget </h4>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDetailsRef?.hide()">
+                <span aria-hidden="true" class="visually-hidden">&times;</span>  
+            </button>  
+        </div>  
+        <div class="modal-body">
+            <div >
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Budget de dotation :</h6>
+                    </div>
+                    <div class="col-6">
+                        {{ currentBudget.db }} Dhs
+                    </div>
+                </div> 
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Budget de recherche :</h6>
+                    </div>
+                    <div class="col-6">
+                        {{ currentBudget.dr }} Dhs
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Année :</h6>
+                    </div>
+                    <div class="col-6">
+                        {{ currentBudget.year }}
+                    </div>
+                </div>    
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Laboratoir :</h6>
+                    </div>
+                    <div class="col-6">
+                        {{ currentBudget.laboratory.name }}
+                    </div>
+                </div>            
+                <button type="submit" style="margin-top: 30px;" class="btn btn-primary" (click)="closeDetailsModal()" >Ok</button>  
+            </div>
+        </div>
+    </div>
+</ng-template>
+

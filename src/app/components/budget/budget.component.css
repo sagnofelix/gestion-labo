@@ -1,0 +1,21 @@
+.addOpenModal{
+    background-color: rgb(88, 24, 69) !important;
+    border-radius: 15px;
+    color: white;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.bloc{
+    margin-top: 40px;
+    
+}
+
+.empty{
+    margin-top: 20px;
+}
+
+.emptyText{
+    font-size: 15px;
+}

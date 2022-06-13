@@ -1,18 +1,48 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { HomeComponent } from './components/home/home.component';
+import { ResponsableComponent } from './components/responsable/responsable.component';
+import { BudgetComponent } from './components/budget/budget.component';
+import { HeaderComponent } from './components/header/header.component';
+import { MemberComponent } from './components/member/member.component';
+import { LoginComponent } from './components/login/login.component';
+import { SearchComponent } from './components/search/search.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
+import { FormsModule } from '@angular/forms';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { HttpClientModule } from '@angular/common/http';
+import { LaboratoireComponent } from './components/laboratoire/laboratoire.component';
+import { AuthGuardService } from './services/guards/auth-guard.service';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent,
+    ResponsableComponent,
+    BudgetComponent,
+    HeaderComponent,
+    MemberComponent,
+    LoginComponent,
+    SearchComponent,
+    NotFoundComponent,
+    LaboratoireComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    ToastrModule.forRoot(),
+    ModalModule.forRoot(),
+    HttpClientModule,
   ],
-  providers: [],
+  providers: [ToastrService,],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,0 +1,26 @@
+/* .body{
+    background-color: rgb(144, 12, 63 ) !important;
+    height: 100vh;
+    margin: 0;
+} */
+
+.connexion{
+    font-weight: bold;
+}
+
+.loginpage{
+    background-color: rgb(88, 24, 69) !important;
+    color: white;
+    padding-top: 30px;
+    padding-right: 50px;
+    padding-left: 50px;
+    padding-bottom: 50px;
+}
+
+.submitBtn{
+    background-color: white;
+    border-radius: 50px;
+    color: rgb(88, 24, 69);
+    width: 100%;
+    font-weight: bold;
+}

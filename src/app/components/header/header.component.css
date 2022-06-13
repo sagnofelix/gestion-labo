@@ -1,0 +1,29 @@
+.navbar{
+    background-color: rgb(88, 24, 69) !important;
+}
+.navbar-brand{
+    color: white;
+    font-weight: bold;
+}
+
+.nav-link{
+    color: white !important;
+}
+
+.logo{
+    height: 50px;
+    border-radius: 30px;
+}
+
+.navbar-toggler-icon{
+    color: white;
+    background-color: white;
+}
+
+.signOutBtn{
+    background-color: white;
+}
+
+.status{
+    color: green;
+}
