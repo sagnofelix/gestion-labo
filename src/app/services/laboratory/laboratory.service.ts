@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 
@@ -6,8 +7,11 @@ import { Subject } from 'rxjs/internal/Subject';
 })
 export class LaboratoryService {
   laboratories : any[] = []
+  apiBaseUrl : string = "http://localhost:8083/"
 
-  constructor() {
+  constructor(
+    private http: HttpClient
+  ) {
     this.getAllFromApi()
   }
 
@@ -32,7 +36,7 @@ export class LaboratoryService {
 
 
   deleteByid(id : number){
-    //delete process in backend and get the new data from api 
+    //delete process in backend and get the new data from api
     let index =this.getIndexById(id)
     if(index != -1){
       this.laboratories.splice(index,1)
@@ -57,24 +61,15 @@ export class LaboratoryService {
     //get laboratories from api
     let laboratories : any[] = []
 
-    let responsable : any = {
-      name : "koy",
-      id : 1,
-      firstname : "fe",
-      email : 'sag.com',
-      phone: '0625241636',
-      laboratoryId : 1,
-    }
-
-    let laboratoryItem : any = {
-      name : "Labo 1",
-      id : 1,
-      phone : "0625248758",
-      address : "Adr 2",
-      responsable : responsable
-    }
-    
-    this.laboratories.push(laboratoryItem)
+    this.http.get<any[]>(this.apiBaseUrl+'laboratories').subscribe(
+      (response) => {
+        this.laboratories = response
+        console.log(response)
+      },
+      (error) => {
+        console.log( error)
+      }
+    )
   }
 
   getNextId() : number {
@@ -95,6 +90,6 @@ export class LaboratoryService {
   }
 
 
-  
+
 
 }

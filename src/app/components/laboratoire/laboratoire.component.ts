@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { LaboratoryService } from 'src/app/services/laboratory/laboratory.service';
@@ -41,11 +42,14 @@ export class LaboratoireComponent implements OnInit {
   modalDeleteRef? : BsModalRef
   modalDetailsRef? : BsModalRef
 
+  apiBaseUrl : string = "http://localhost:8083/"
+
   constructor(
     private laboratoryService : LaboratoryService,
     private modalService : BsModalService,
     private toastService : ToastService,
-    private responsableService : ResponsableService
+    private responsableService : ResponsableService,
+    private http: HttpClient
   ) {
     this.getLaboratoriesFromService()
     this.getEnabledResponsables()
@@ -59,7 +63,7 @@ export class LaboratoireComponent implements OnInit {
   }
 
   isItemValid(){
-    return this.laboratoryItem.name != "" && this.laboratoryItem.address != "" && this.laboratoryItem.phone != "" 
+    return this.laboratoryItem.name != "" && this.laboratoryItem.address != "" && this.laboratoryItem.phone != ""
   }
 
   getLaboratoriesFromService(){
@@ -117,22 +121,42 @@ export class LaboratoireComponent implements OnInit {
       return
     }
     if(this.isItemValid()){
-      let responsable = this.getResponsableById(this.selectedResponsableId)
-      
-      this.laboratoryItem.responsable = responsable
-      let laboId = this.laboratoryService.add(this.laboratoryItem)
-      responsable.laboratoryId = laboId
-      this.responsableService.updateLaboratoryId(responsable)
-      this.getEnabledResponsables()
-      this.laboratoryItem = this.laboratoryItemCopy
-      this.laboratories = this.laboratoryService.laboratories
-      this.selectedResponsableId = null
-      this.toastService.showInfo("Laboratoire ajouté avec succès","")
-      this.modalRef?.hide()
+      // let responsable = this.getResponsableById(this.selectedResponsableId)
+
+      // this.laboratoryItem.responsable = responsable
+      // let laboId = this.laboratoryService.add(this.laboratoryItem)
+      // responsable.laboratoryId = laboId
+      // this.responsableService.updateLaboratoryId(responsable)
+      // this.getEnabledResponsables()
+      // this.laboratoryItem = this.laboratoryItemCopy
+      // this.laboratories = this.laboratoryService.laboratories
+      // this.selectedResponsableId = null
+      // this.toastService.showInfo("Laboratoire ajouté avec succès","")
+      // this.modalRef?.hide()
+
+      this.laboratoryItem.responsableId = this.selectedResponsableId
+      this.http.post<any>(this.apiBaseUrl+'laboratories/add', this.laboratoryItem).subscribe(
+        (data:any) => {
+          if(data.id == 0){
+            this.toastService.showDanger(data.email,"")
+          }else{
+            console.log(data)
+            // this.responsableService.add(data)
+            // this.laboratoryItem = this.laboratoryItemCopy
+            // this.responsables = this.responsableService.responsables
+            // this.toastService.showInfo("Responsable ajouté avec succès","")
+            // this.modalRef?.hide()
+          }
+        },
+        (error) => {
+          console.log(error)
+        }
+      )
     }else{
       this.toastService.showDanger("Donnez toutes les information requises","")
     }
-    
+
+
   }
 
   editLaboratory(){
@@ -162,7 +186,7 @@ export class LaboratoireComponent implements OnInit {
     }
   }
 
-  
+
   deleteLaboratory(){
     let index = this.getIndex(this.currentSelectedId)
     if(index != -1){
@@ -176,7 +200,7 @@ export class LaboratoireComponent implements OnInit {
     }else{
       this.toastService.showDanger("Aucun laboratoire trouvé pour la suppression",'')
     }
-    
+
   }
 
   closeDetailsModal(){
@@ -186,7 +210,7 @@ export class LaboratoireComponent implements OnInit {
     this.selectedResponsableId = null
   }
 
-  isSelected(responsable: any): boolean { 
+  isSelected(responsable: any): boolean {
     return this.currentLaboratory.responsable == responsable;
   }
 

@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastService } from '../toastr/toast.service';
 
@@ -5,13 +6,13 @@ import { ToastService } from '../toastr/toast.service';
   providedIn: 'root'
 })
 export class ResponsableService {
-  public responsable : any = {
-    name : "", firstname : "", email : null, password : null, isAuthenticated : false
-  }
-
   responsables : any[] = []
+  apiBaseUrl : string = "http://localhost:8083/"
 
-  constructor(private toastService : ToastService) {
+  constructor(
+    private toastService : ToastService,
+    private http: HttpClient
+  ) {
     this.getAllFromApi()
   }
 
@@ -47,7 +48,7 @@ export class ResponsableService {
   }
 
   deleteById(id : number){
-    //delete process in backend and get the new data from api 
+    //delete process in backend and get the new data from api
     let index =this.getIndexById(id)
     if(index != -1){
       this.responsables.splice(index,1)
@@ -63,7 +64,7 @@ export class ResponsableService {
       this.toastService.showDanger("Aucun responsable trouvé pour la suppression",'')
       return false
     }
-    
+
   }
 
   getItemByIndex(index : number) : undefined | any{
@@ -78,25 +79,15 @@ export class ResponsableService {
 
   getAllFromApi(){
     //get responsables from api
-    let item1 : any = {
-      name : "koy",
-      id : 1,
-      firstname : "fe",
-      email : 'sag.com',
-      phone: '0625241636',
-      laboratoryId : null,
-    }
-    let item2 : any = {
-      name : "sagn",
-      id : 2,
-      firstname : "Jean",
-      email : 'jean.com',
-      phone: '0625241636',
-      laboratoryId : null,
-    }
-    
-    this.responsables.push(item1)
-    this.responsables.push(item2)
+    this.http.get<any[]>(this.apiBaseUrl+'responsables').subscribe(
+      (response) => {
+        this.responsables = response
+        console.log(response)
+      },
+      (error) => {
+        console.log( error)
+      }
+    )
 
   }
 

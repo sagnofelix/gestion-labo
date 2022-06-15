@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ResponsableService } from 'src/app/services/responsable/responsable.service';
@@ -40,12 +41,15 @@ export class ResponsableComponent implements OnInit {
   modalDeleteRef? : BsModalRef
   modalDetailsRef? : BsModalRef
 
+  apiBaseUrl : string = "http://localhost:8083/"
+
 
 
   constructor(
     private responsableService : ResponsableService,
     private modalService : BsModalService,
-    private toastService : ToastService
+    private toastService : ToastService,
+    private http: HttpClient
   ) {
     this.getAllFromService()
   }
@@ -78,7 +82,7 @@ export class ResponsableComponent implements OnInit {
     this.modalEditRef = this.modalService.show(template,config)
   }
 
-  
+
 
   openDeleteModal(template : TemplateRef<any>,id:number){
     this.currentSelectedId = id
@@ -104,11 +108,29 @@ export class ResponsableComponent implements OnInit {
   }
 
   add(){
-    this.responsableService.add(this.responsableItem)
-    this.responsableItem = this.responsableItemCopy
-    this.responsables = this.responsableService.responsables
-    this.toastService.showInfo("Responsable ajouté avec succès","")
-    this.modalRef?.hide()
+    if(this.vallidateInputs()){
+      this.http.post<any>(this.apiBaseUrl+'persons/add?type=Responsable', this.responsableItem).subscribe(
+        (data:any) => {
+          if(data.id == 0){
+            this.toastService.showDanger(data.email,"")
+          }else{
+            data.type = this.responsableItem.type
+            this.responsableService.add(this.responsableItem)
+            this.responsableItem = this.responsableItemCopy
+            this.responsables = this.responsableService.responsables
+            this.toastService.showInfo("Responsable ajouté avec succès","")
+            this.modalRef?.hide()
+          }
+        },
+        (error) => {
+          console.log(error)
+        }
+      )
+    }else{
+      this.toastService.showDanger("Donnez toutes les informations recquises.",'')
+    }
+
+
   }
 
   edit(){
@@ -121,7 +143,7 @@ export class ResponsableComponent implements OnInit {
     this.currentSelectedId = null
   }
 
-  
+
   delete(){
     let result = this.responsableService.delete(this.currentSelectedId)
     if(!result) return
@@ -130,7 +152,7 @@ export class ResponsableComponent implements OnInit {
     this.modalDeleteRef?.hide()
     this.currentResponsable = null
     this.currentSelectedId = null
-    
+
   }
 
   getIndex(id:number){
@@ -144,5 +166,9 @@ export class ResponsableComponent implements OnInit {
     this.modalDetailsRef?.hide()
     this.currentResponsable = null
     this.currentSelectedId = null
+  }
+
+  vallidateInputs(){
+    return this.responsableItem.email != null && this.responsableItem.phone != null && this.responsableItem.password != null && this.responsableItem.name != null && this.responsableItem.firstname != null
   }
 }

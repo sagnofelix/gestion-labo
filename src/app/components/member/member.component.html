@@ -4,33 +4,37 @@
         <div class="col-md-8 col-sm-8 col-xs-0 col-lg-8">
             <div class="row">
                 <div class="col-12">
-                    <button class="addOpenModal" (click)="openAddModal(template)">Ajouter un member</button>
+                    <button class="addOpenModal" (click)="openAddModal(template)">Ajouter un membre</button>
                 </div>
                 <table *ngIf="members.length != 0" class="table table-dark">
                     <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Nom</th>
-                        <th scope="col">Responsable</th>
-                        <th scope="col">Actions</th>
-                      </tr>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nom & Prénom</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Téléphone</th>
+
+                            <th scope="col">Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let member of members;let i=index">
-                        <th scope="row">{{ i + 1 }} </th>
-                        <td>{{ member.name}} </td>
-                        <td>{{ member.responsable}} </td>
-                        <td>
-                            <i (click)="openEditModal(templateEdit,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
-                            <i (click)="openDetailsModal(templateDetails,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
-                            <i (click)="openDeleteModal(templateDelete,i)" class="fa-solid fa-trash-can"></i>
-                        </td>
-                      </tr>
+                        <tr *ngFor="let member of members;let i=index">
+                            <th scope="row">{{ member.id }} </th>
+                            <td>{{ member.name}} {{ member.firsname}} </td>
+                            <td>{{ member.email}} </td>
+                            <td>{{ member.phone}} </td>
+
+                            <td>
+                                <i (click)="openEditModal(templateEdit,member.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
+                                <i (click)="openDetailsModal(templateDetails,member.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
+                                <i (click)="openDeleteModal(templateDelete,member.id)" class="fa-solid fa-trash-can"></i>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
-                <div *ngIf="members.length == 0"  class="col-12 empty">
+                <div *ngIf="members.length == 0" class="col-12 empty">
                     <hr>
-                    <p class="emptyText">Aucun member ajouté pour le moment.</p>
+                    <p class="emptyText">Aucun membre ajouté pour le moment.</p>
                 </div>
             </div>
         </div>
@@ -39,106 +43,116 @@
 </div>
 
 
-
-
 <ng-template #template>
-    <div class="addModal"> 
+    <div class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Ajouter un member</h4>
+            <h4 class="modal-title pull-left">Ajouter un membre</h4>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
-                    <label for="">Nom du member</label>        
-                    <input [(ngModel)] = "memberItem.name" type="text" class="form-control" placeholder="Nom du member">  
+                    <label for="">Nom</label>
+                    <input [(ngModel)]="memberItem.name" type="text" class="form-control" placeholder="Nom du member">
                 </div>
                 <div class="form-group">
-                    <label for="">Id </label>        
-                    <input  type="number" min="0" [(ngModel)] = "memberItem.id" class="form-control" placeholder="Id du member">  
+                    <label for="">Prénom</label>
+                    <input [(ngModel)]="memberItem.firstname" type="text" class="form-control" placeholder="Prénom du member">
                 </div>
                 <div class="form-group">
-                    <label for="">Responsable</label>        
-                    <input type="text" [(ngModel)] = "memberItem.responsable" class="form-control" placeholder="Responsable du member">  
+                    <label for="">Email</label>
+                    <input [(ngModel)]="memberItem.email" type="email" class="form-control" placeholder="Email du member">
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="add()" >Ajouter</button>  
+                <div class="form-group">
+                    <label for="">Téléphone</label>
+                    <input [(ngModel)]="memberItem.phone" type="text" class="form-control" placeholder="Phone du member">
+                </div>
+                <div class="form-group">
+                    <label for="">Mot de passe</label>
+                    <input [(ngModel)]="memberItem.password" type="text" class="form-control" placeholder="Mot  de passe du member">
+                    <small id="" class="form-text text-muted notice">Il devra changer dès la première connexion <span style="color: orange;">*</span></small>
+                </div>
+                <button type="submit" class="btn btn-primary" (click)="add()">Ajouter</button>
             </div>
         </div>
     </div>
 </ng-template>
 
 <ng-template #templateEdit>
-    <div *ngIf="currentMember != null" class="addModal"> 
+    <div *ngIf="currentMember != null" class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Modification du member {{ currentMember.name }} </h4>
+            <h6 class="modal-title pull-left">Modification du membre : {{fullname}} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalEditRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
-                    <label for="">Nom du membre</label>        
-                    <input [(ngModel)] = "currentMember.name" type="text" class="form-control" placeholder="Nom du member">  
+                    <label for="">Nom</label>
+                    <input [(ngModel)]="currentMember.name" type="text" class="form-control" placeholder="Nom du reponsable">
                 </div>
                 <div class="form-group">
-                    <label for="">Id </label>        
-                    <input  type="number" min="0" [(ngModel)] = "currentMember.id" class="form-control" placeholder="Id du member">  
+                    <label for="">Prénom</label>
+                    <input [(ngModel)]="currentMember.firstname" type="text" class="form-control" placeholder="Prénom du member">
                 </div>
                 <div class="form-group">
-                    <label for="">Responsable</label>        
-                    <input type="text" [(ngModel)] = "currentMember.responsable" class="form-control" placeholder="Nom du member">  
+                    <label for="">Email</label>
+                    <input [(ngModel)]="currentMember.email" type="email" class="form-control" placeholder="Email du member">
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="edit()" >Modifier</button>  
+                <div class="form-group">
+                    <label for="">Téléphone</label>
+                    <input [(ngModel)]="currentMember.phone" type="text" class="form-control" placeholder="Téléphone du member">
+                </div>
+                <button type="submit" class="btn btn-primary" (click)="edit()">Modifier</button>
             </div>
         </div>
     </div>
 </ng-template>
 
 <ng-template #templateDelete>
-    <div *ngIf="currentMember != null" class="addModal"> 
+    <div *ngIf="currentMember != null" class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Suppresion du member : {{ currentMember.name }} </h4>
+            <h4 class="modal-title pull-left">Suppresion du membre : {{ currentMember.name }} {{ currentMember.firsname }} </h4>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDeleteRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
                     <p>
                         Voulez-vous vraiment Supprimer ce membre ?
                     </p>
                 </div>
-                
-                <button type="submit" class="btn btn-primary" (click)="delete()" >Oui</button>  
+
+                <button type="submit" class="btn btn-primary" (click)="delete()">Oui</button>
             </div>
         </div>
     </div>
 </ng-template>
 
 <ng-template #templateDetails>
-    <div *ngIf="currentMember != null" class="addModal"> 
+    <div *ngIf="currentMember != null" class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">{{ currentMember.name }} </h4>
+            <h4 class="modal-title pull-left">{{ currentMember.name }} {{ currentMember.firsname }} </h4>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDetailsRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
                     <p>
                         Deatail du membre ici
                     </p>
                 </div>
                 <hr>
-                
-                <button type="submit" class="btn btn-primary" (click)="closeDetailsModal()" >Ok</button>  
+
+                <button type="submit" class="btn btn-primary" (click)="closeDetailsModal()">Ok</button>
             </div>
         </div>
     </div>
 </ng-template>
-

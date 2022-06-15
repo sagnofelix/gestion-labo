@@ -1,6 +1,5 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { Member } from 'src/app/interfaces/members';
 import { ToastService } from '../toastr/toast.service';
 
 @Injectable({
@@ -10,7 +9,12 @@ export class MemberService {
 
   members : any[] = []
 
-  constructor(private toastService : ToastService) {
+  apiBaseUrl : string = "http://localhost:8083/"
+
+  constructor(
+    private toastService : ToastService,
+    private http: HttpClient
+  ) {
     this.getAllFromApi()
   }
 
@@ -20,20 +24,14 @@ export class MemberService {
     this.members.push(member)
   }
 
-  edit(member : any){
+  edit(member : any) : boolean{
     let index = this.getIndexById(member.id)
-    this.members[index] = member
-  }
-
-  delete(index : number){
-    this.members.splice(index,1)
-  }
-
-  deleteById(id : number){
-    //delete process in backend and get the new data from api 
-    let index =this.getIndexById(id)
     if(index != -1){
-      this.members.splice(index,1)
+      this.members[index] = member
+      return true
+    }else{
+      this.toastService.showDanger("Aucun membre trouvé pour la modification","")
+      return false
     }
   }
 
@@ -44,6 +42,32 @@ export class MemberService {
     return -1
   }
 
+  updateLaboratoryId(member : any){
+    let index =this.getIndexById(member.id)
+    if(index != -1){
+      this.members[index] = member
+    }
+  }
+
+  deleteById(id : number){
+    //delete process in backend and get the new data from api
+    let index =this.getIndexById(id)
+    if(index != -1){
+      this.members.splice(index,1)
+    }
+  }
+
+  delete(id : number){
+    let index = this.getIndexById(id)
+    if(index != -1){
+      this.members.splice(index,1)
+      return true
+    }else{
+      this.toastService.showDanger("Aucun membre trouvé pour la suppression",'')
+      return false
+    }
+
+  }
 
   getItemByIndex(index : number) : undefined | any{
     return this.members[index]
@@ -56,10 +80,26 @@ export class MemberService {
   }
 
   getAllFromApi(){
-    //get members from api
-    let members : any[] = []
+    this.http.get<any[]>(this.apiBaseUrl+'employes').subscribe(
+      (response) => {
+        this.members = response
+      },
+      (error) => {
+        console.log( error)
+      }
+    )
 
-    this.members = members
+  }
+
+  getEnabledMembers(){
+    let members : any[] = []
+    for(let i=0;i<this.members.length;i++){
+      let item = this.members[i]
+      if(item.laboratoryId == null){
+        members.push(item)
+      }
+    }
+    return members
   }
 
   getNextId() : number {

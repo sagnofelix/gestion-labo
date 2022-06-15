@@ -7,6 +7,8 @@ export class AuthService {
   isAuthenticated : boolean = false
   user  : any = {}
 
+
+
   signOut(){
     this.isAuthenticated = false
     this.user = {}
@@ -17,5 +19,7 @@ export class AuthService {
     this.user = user
   }
 
-  constructor() { }
+  constructor(
+
+  ) { }
 }
