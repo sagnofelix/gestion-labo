@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
       this.toastService.showDanger("Veillez fournir toutes informations requises","")
     }else{
       if(this.vallidateInputs()){
-        this.http.post<any>(this.apiBaseUrl+'login', this.userInfo).subscribe(
+        this.http.post<any>(this.apiBaseUrl+'login?type='+this.userInfo.type, this.userInfo).subscribe(
           (data:any) => {
             if(data.id == 0){
               this.toastService.showDanger(data.email,"")
@@ -56,6 +56,7 @@ export class LoginComponent implements OnInit {
             console.log(error)
           }
         )
+        this.returnUrl = "/"
       }else{
         this.toastService.showDanger("Remplissez tous les champs.",'')
       }

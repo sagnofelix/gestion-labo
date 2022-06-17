@@ -26,4 +26,16 @@ export class HeaderComponent implements OnInit {
 
   }
 
+  showLaboLink() : boolean {
+    return this.authService.user.type=="Administrateur"
+  }
+
+  showResponsableLink() : boolean {
+    return this.authService.user.type=="Responsable"
+  }
+
+  showEmploye() : boolean {
+    return this.authService.user.type=="Employé"
+  }
+
 }

@@ -19,7 +19,7 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let member of members;let i=index">
-                            <th scope="row">{{ member.id }} </th>
+                            <th scope="row">{{ i + 1 }} </th>
                             <td>{{ member.name}} {{ member.firsname}} </td>
                             <td>{{ member.email}} </td>
                             <td>{{ member.phone}} </td>

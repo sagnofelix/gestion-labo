@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ToastService } from '../toastr/toast.service';
 
@@ -7,14 +8,15 @@ import { ToastService } from '../toastr/toast.service';
 export class BudgetService {
 
   budgets : any[] = []
+  apiBaseUrl : string = "http://localhost:8083/"
 
-  constructor(private toastService : ToastService) {
+
+  constructor(private toastService : ToastService,private http: HttpClient) {
     this.getAllFromApi()
   }
 
 
   add(budget : any){
-    budget.id = this.getNextId()
     this.budgets.push(budget)
   }
 
@@ -29,19 +31,24 @@ export class BudgetService {
     }
   }
 
-  delete(id : number):boolean{
-    let index = this.getIndexById(id)
-    if(index != -1){
-      this.budgets.splice(index,1)
-      return true
-    }else{
-      this.toastService.showDanger("Aucun budget trouvé pour la suppression",'')
-      return false
-    }
+  // delete(id : number):boolean{
+  //   let index = this.getIndexById(id)
+  //   if(index != -1){
+  //     this.budgets.splice(index,1)
+  //     return true
+  //   }else{
+  //     this.toastService.showDanger("Aucun budget trouvé pour la suppression",'')
+  //     return false
+  //   }
+  // }
+
+  delete(id:number){
+    //get responsables from api
+    return this.http.get<any[]>(this.apiBaseUrl+'budgets/delete?id='+id)
   }
 
   deleteById(id : number){
-    //delete process in backend and get the new data from api 
+    //delete process in backend and get the new data from api
     let index =this.getIndexById(id)
     if(index != -1){
       this.budgets.splice(index,1)
@@ -65,12 +72,12 @@ export class BudgetService {
     })
   }
 
-  getAllFromApi(){
-    //get budgets from api
-    let budgets : any[] = []
+  // getAllFromApi(){
+  //   //get budgets from api
+  //   let budgets : any[] = []
 
-    this.budgets = budgets
-  }
+  //   this.budgets = budgets
+  // }
 
   getNextId() : number {
     if(this.budgets.length == 0) return 1
@@ -89,5 +96,7 @@ export class BudgetService {
     return false
   }
 
-
+  getAllFromApi(){
+    return this.http.get<any[]>(this.apiBaseUrl+'budgets')
+  }
 }

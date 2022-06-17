@@ -13,26 +13,26 @@ import { IsAdminGuardService } from './services/guards/is-admin-guard.service';
 import { IsResponsableGuardService } from './services/guards/is-responsable-guard.service';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { 
-    path: 'responsable', 
+  { path: '', component: HomeComponent,canActivate:[AuthGuardService] },
+  {
+    path: 'responsable',
     component: ResponsableComponent ,
-    // canActivate: [
-    //   AuthGuardService,IsAdminGuardService
-    // ]
+    canActivate: [
+      AuthGuardService,IsResponsableGuardService
+    ]
   },
-  { 
-    path: 'laboratoires', 
+  {
+    path: 'laboratoires',
     component: LaboratoireComponent ,
-    //canActivate:[AuthGuardService,IsAdminGuardService] 
+    canActivate:[AuthGuardService,IsAdminGuardService]
   },
-  { 
-    path: 'budgets', component: BudgetComponent , 
-    //canActivate:[AuthGuardService,IsResponsableGuardService]
+  {
+    path: 'budgets', component: BudgetComponent ,
+    canActivate:[AuthGuardService,IsResponsableGuardService]
   },
-  { 
-    path: 'members', component: MemberComponent , 
-    //canActivate:[AuthGuardService]
+  {
+    path: 'members', component: MemberComponent ,
+    canActivate:[AuthGuardService]
   },
   { path: 'search', component: SearchComponent },
   { path: 'login', component: LoginComponent },

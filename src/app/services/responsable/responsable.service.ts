@@ -13,12 +13,14 @@ export class ResponsableService {
     private toastService : ToastService,
     private http: HttpClient
   ) {
-    this.getAllFromApi()
+    this.getAllFromApi().subscribe((data) => {
+      this.responsables = data
+    },(err) => {console.log(err)})
   }
 
 
   add(responsable : any){
-    responsable.id = this.getNextId()
+    //responsable.id = this.getNextId()
     this.responsables.push(responsable)
   }
 
@@ -48,23 +50,10 @@ export class ResponsableService {
   }
 
   deleteById(id : number){
-    //delete process in backend and get the new data from api
     let index =this.getIndexById(id)
     if(index != -1){
       this.responsables.splice(index,1)
     }
-  }
-
-  delete(id : number){
-    let index = this.getIndexById(id)
-    if(index != -1){
-      this.responsables.splice(index,1)
-      return true
-    }else{
-      this.toastService.showDanger("Aucun responsable trouvé pour la suppression",'')
-      return false
-    }
-
   }
 
   getItemByIndex(index : number) : undefined | any{
@@ -78,17 +67,15 @@ export class ResponsableService {
   }
 
   getAllFromApi(){
-    //get responsables from api
-    this.http.get<any[]>(this.apiBaseUrl+'responsables').subscribe(
-      (response) => {
-        this.responsables = response
-        console.log(response)
-      },
-      (error) => {
-        console.log( error)
-      }
-    )
+    return this.http.get<any[]>(this.apiBaseUrl+'responsables')
+  }
 
+  getEnabledFromApi(){
+    return this.http.get<any[]>(this.apiBaseUrl+'responsables/enabled')
+  }
+
+  delete(id:number){
+    return this.http.get<any[]>(this.apiBaseUrl+'responsables/delete?id='+id)
   }
 
   getEnabledResponsables(){

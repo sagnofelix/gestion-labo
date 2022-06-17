@@ -12,14 +12,13 @@ export class LaboratoryService {
   constructor(
     private http: HttpClient
   ) {
-    this.getAllFromApi()
+    this.getAllFromApi().subscribe((laboratories) => {
+      this.laboratories = laboratories
+    },(err) => {console.log(err)})
   }
 
   add(laboratory : any){
-    let id = this.getNextId()
-    laboratory.id = id
     this.laboratories.push(laboratory)
-    return id
   }
 
   edit(laboratory : any){
@@ -43,8 +42,13 @@ export class LaboratoryService {
     }
   }
 
-  delete(index : number){
-    this.laboratories.splice(index,1)
+  // delete(index : number){
+  //   this.laboratories.splice(index,1)
+  // }
+
+  delete(id:number){
+    //get responsables from api
+    return this.http.get<any[]>(this.apiBaseUrl+'laboratories/delete?id='+id)
   }
 
   getItemByIndex(index : number) : undefined | any{
@@ -58,18 +62,7 @@ export class LaboratoryService {
   }
 
   getAllFromApi(){
-    //get laboratories from api
-    let laboratories : any[] = []
-
-    this.http.get<any[]>(this.apiBaseUrl+'laboratories').subscribe(
-      (response) => {
-        this.laboratories = response
-        console.log(response)
-      },
-      (error) => {
-        console.log( error)
-      }
-    )
+    return this.http.get<any[]>(this.apiBaseUrl+'laboratories')
   }
 
   getNextId() : number {

@@ -83,6 +83,7 @@ export class MemberService {
     this.http.get<any[]>(this.apiBaseUrl+'employes').subscribe(
       (response) => {
         this.members = response
+        console.log(this.members)
       },
       (error) => {
         console.log( error)

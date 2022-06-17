@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BudgetService } from 'src/app/services/budget/budget.service';
@@ -15,6 +16,8 @@ export class BudgetComponent implements OnInit {
   laboratories : any = []
   selectedLaboratoryId = null
 
+  loading = true
+
   budgetItem : any = {
     id : null,
     db : null,
@@ -25,8 +28,8 @@ export class BudgetComponent implements OnInit {
 
   budgetItemCopy : any = {
     id : null,
-    db : null,
-    dr: null,
+    dotationBase : null,
+    dotationRecherche: null,
     year : null,
     laboratory : null
   }
@@ -40,26 +43,35 @@ export class BudgetComponent implements OnInit {
   modalDetailsRef? : BsModalRef
 
 
-
+  apiBaseUrl : string = "http://localhost:8083/"
   constructor(
     private budgetService : BudgetService,
-    private laborotyService : LaboratoryService,
+    private laboratoryService : LaboratoryService,
     private modalService : BsModalService,
-    private toastService : ToastService
+    private toastService : ToastService,
+    private http: HttpClient
   ) {
     this.getAllFromService()
-    this.getLaboratories()
   }
 
   ngOnInit(): void {
   }
 
   getAllFromService(){
-    this.budgets = this.budgetService.budgets
+    this.laboratoryService.getAllFromApi().subscribe((laboratories) => {
+      this.laboratoryService.laboratories = laboratories
+      this.laboratories = laboratories
+      this.budgetService.getAllFromApi().subscribe((budgets) => {
+        this.budgets = budgets
+        this.budgetService.budgets = budgets
+        console.log(budgets)
+        this.loading = false
+      })
+    },(err) => {console.log(err)})
   }
 
   getLaboratories(){
-    this.laboratories = this.laborotyService.laboratories
+    this.laboratories = this.laboratoryService.laboratories
   }
 
   openAddModal(template : TemplateRef<any>){
@@ -72,8 +84,9 @@ export class BudgetComponent implements OnInit {
 
   openEditModal(template : TemplateRef<any>,id:number){
     this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+    let index = this.getCurrentBudgetIndex(this.currentSelectedId)
     this.currentBudget = this.budgets[index]
+    this.currentBudget.laboratory = this.getLboratoryForBudget(this.currentBudget.id)
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -83,7 +96,7 @@ export class BudgetComponent implements OnInit {
 
   openDeleteModal(template : TemplateRef<any>,id:number){
     this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+    let index = this.getCurrentBudgetIndex(this.currentSelectedId)
     this.currentBudget = this.budgets[index]
     let config = {
       backdrop: true,
@@ -108,49 +121,70 @@ export class BudgetComponent implements OnInit {
       this.toastService.showDanger("Aucun laboratoire choisi pour ce budget","")
       return
     }
-    let laboratory = this.getLaboratoryById(this.selectedLaboratoryId)
-    this.budgetItem.laboratory = laboratory
-    console.log(this.budgetItem)
-    this.budgetService.add(this.budgetItem)
-    this.budgetItem = this.budgetItemCopy
-    this.budgets = this.budgetService.budgets
-    this.selectedLaboratoryId = null
-    this.toastService.showInfo("Budget ajouté avec succès","")
-    this.modalRef?.hide()
+    this.http.post<any>(this.apiBaseUrl+'budgets/add?laboId='+this.selectedLaboratoryId, this.budgetItem).subscribe(
+      async (budget:any) => {
+        if(budget.id == 0){
+          this.toastService.showDanger("Une erreur est survenu lors de l'enregistrement","")
+        }else{
+          this.budgetService.add(budget)
+          this.budgetItem = this.budgetItemCopy
+          this.budgets = this.budgetService.budgets
+          this.selectedLaboratoryId = null
+          this.toastService.showInfo("Budget ajouté avec succès","")
+          this.modalRef?.hide()
+        }
+      },
+      (error) => {
+        console.log(error)
+      }
+    )
   }
 
   edit(){
-    let index = this.getIndex(this.currentSelectedId)
+    let index = this.getCurrentBudgetIndex(this.currentBudget.id)
     if(index != -1){
-      if(this.selectedLaboratoryId != null){
-        let oldlaboratoryLaboId = this.currentBudget.laboratory.id
-        if(this.selectedLaboratoryId != oldlaboratoryLaboId){
-          let laboratory = this.getLaboratoryById(this.selectedLaboratoryId)
-          this.currentBudget.laboratory = laboratory
+      this.http.post<any>(this.apiBaseUrl+'budgets/edit?laboId='+this.currentBudget.laboratory.id, this.currentBudget).subscribe(
+        async (budget:any) => {
+          if(budget.id == 0){
+            this.toastService.showDanger("Une erreur est survenu lors de la modification","")
+          }else{
+            let result = this.budgetService.edit(budget)
+            if(!result) return
+            this.budgets = this.budgetService.budgets
+            this.toastService.showInfo("Modification effectuée avec succès","")
+            this.modalEditRef?.hide()
+            this.currentBudget = null
+            this.currentSelectedId = null
+            this.selectedLaboratoryId = null
+          }
+        },
+        (error) => {
+          console.log(error)
         }
-      }
-      let result = this.budgetService.edit(this.currentBudget)
-      if(!result) return
-      this.budgets = this.budgetService.budgets
-      this.toastService.showInfo("Modification effectuée avec succès","")
-      this.modalEditRef?.hide()
-      this.currentBudget = null
-      this.currentSelectedId = null
-      this.selectedLaboratoryId = null
+      )
     }else{
       this.toastService.showDanger("Aucun budget trouvé pour la modification","")
     }
   }
 
-  
+
   delete(){
-    let result = this.budgetService.delete(this.currentSelectedId)
-    if(!result) return
-    this.budgets = this.budgetService.budgets
-    this.toastService.showInfo("Suppression effectuée avec succès","")
-    this.modalDeleteRef?.hide()
-    this.currentBudget = null
-    this.currentSelectedId = null
+    // let result = this.budgetService.delete(this.currentSelectedId)
+    // if(!result) return
+    // this.budgets = this.budgetService.budgets
+    // this.toastService.showInfo("Suppression effectuée avec succès","")
+    // this.modalDeleteRef?.hide()
+    // this.currentBudget = null
+    // this.currentSelectedId = null
+
+    this.budgetService.delete(this.currentSelectedId).subscribe((budgets:any) => {
+      this.budgets = budgets
+      this.budgetService.budgets = budgets
+      this.toastService.showInfo("Suppression effectuée avec succès","")
+      this.modalDeleteRef?.hide()
+      this.currentBudget = null
+      this.currentSelectedId = null
+    },(err:any) => {console.log(err)})
   }
 
   closeDetailsModal(){
@@ -166,10 +200,30 @@ export class BudgetComponent implements OnInit {
     return -1
   }
 
+  getCurrentBudgetIndex(id:number){
+    console.log(this.budgets)
+    console.log(id)
+    for(let i=0;i< this.budgets.length;i++){
+      if(this.budgets[i].id == id) return i
+    }
+    return -1
+  }
+
   getLaboratoryById(id:number) : undefined | any{
     return this.laboratories.find((laboratory:any) => {
       return laboratory.id == id
     })
+  }
+
+  getLboratoryForBudget(budget_id:number){
+    for(let i=0;i< this.laboratories.length;i++){
+      let labo = this.laboratories[i]
+      for(let j=0;j< labo.budgets.length;j++){
+        let budget = labo.budgets[j]
+        if(budget_id == budget.id) return labo
+      }
+    }
+    return null
   }
 
 

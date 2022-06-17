@@ -1,4 +1,4 @@
-.addOpenModal{
+.addOpenModal {
     background-color: rgb(88, 24, 69) !important;
     border-radius: 15px;
     color: white;
@@ -7,15 +7,20 @@
     padding-right: 10px;
 }
 
-.bloc{
+.bloc {
     margin-top: 40px;
-    
 }
 
-.empty{
+.empty {
     margin-top: 20px;
 }
 
-.emptyText{
+.emptyText {
     font-size: 15px;
+}
+
+.loading {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

@@ -2,40 +2,45 @@
     <div class="row bloc">
         <div class="col-md-2 col-sm-2 col-xs-0 col-lg-2"></div>
         <div class="col-md-8 col-sm-8 col-xs-0 col-lg-8">
-            <div class="row">
+            <div *ngIf='!loading' class="row">
                 <div class="col-12">
                     <button class="addOpenModal" (click)="openAddModal(template)">Ajouter un laboratoire</button>
                 </div>
                 <table *ngIf="laboratories.length != 0" class="table table-dark">
                     <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Nom</th>
-                        <th scope="col">Adresse</th>
-                        <th scope="col">Téléphone</th>
-                        <th scope="col">Responsable</th>
-                        <th scope="col">Actions</th>
-                      </tr>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nom</th>
+                            <th scope="col">Adresse</th>
+                            <th scope="col">Téléphone</th>
+                            <th scope="col">Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let laboratory of laboratories;let i=index">
-                        <th scope="row">{{ i + 1 }} </th>
-                        <td>{{ laboratory.name}} </td>
-                        <td>{{ laboratory.address}} </td>
-                        <td>{{ laboratory.phone}} </td>
-                        <td>{{ laboratory.responsable.name +" "+ laboratory.responsable.firstname }} </td>
-                        <td>
-                            <i (click)="openEditModal(templateEdit,laboratory.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
-                            <i (click)="openDetailsModal(templateDetails,laboratory.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
-                            <i (click)="openDeleteModal(templateDelete,laboratory.id)" class="fa-solid fa-trash-can"></i>
-                        </td>
-                      </tr>
+                        <tr *ngFor="let laboratory of laboratories;let i=index">
+                            <th scope="row">{{ i + 1 }} </th>
+                            <td>{{ laboratory.name}} </td>
+                            <td>{{ laboratory.address}} </td>
+                            <td>{{ laboratory.phone}} </td>
+                            <td>
+                                <i (click)="openEditModal(templateEdit,laboratory.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
+                                <i (click)="openDetailsModal(templateDetails,laboratory.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
+                                <i (click)="openDeleteModal(templateDelete,laboratory.id)" class="fa-solid fa-trash-can"></i>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
-                <div *ngIf="laboratories.length == 0"  class="col-12 empty">
+                <div *ngIf="laboratories.length == 0" class="col-12 empty">
                     <hr>
                     <p class="emptyText">Aucun laboratoire ajouté pour le moment.</p>
                 </div>
+            </div>
+            <div *ngIf='loading' class="row">
+                <div class="col-3"></div>
+                <div class="col-6">
+                    <img class="loaging" src="assets/images/loading.gif" alt="">
+                </div>
+                <div class="col-3"></div>
             </div>
         </div>
         <div class="col-md-2 col-sm-2 col-xs-0 col-lg-2"></div>
@@ -46,26 +51,26 @@
 
 
 <ng-template #template>
-    <div class="addModal"> 
+    <div class="addModal">
         <div class="modal-header">
             <h5 class="text-center modal-title pull-left">Ajouter un laboratoire</h5>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+                <span aria-hidden="true" class="visually-hidden">&times;</span>
+            </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
-                    <label for="">Nom du laboratoire</label>        
-                    <input [(ngModel)] = "laboratoryItem.name" type="text" class="form-control" placeholder="Nom du laboratoire">  
+                    <label for="">Nom du laboratoire</label>
+                    <input [(ngModel)]="laboratoryItem.name" type="text" class="form-control" placeholder="Nom du laboratoire">
                 </div>
                 <div class="form-group">
-                    <label for="">Numéro de téléphone du laboratoire</label>        
-                    <input [(ngModel)] = "laboratoryItem.phone" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">  
+                    <label for="">Numéro de téléphone du laboratoire</label>
+                    <input [(ngModel)]="laboratoryItem.phone" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">
                 </div>
                 <div class="form-group">
-                    <label for="">Adresse du laboratoire</label>        
-                    <input [(ngModel)] = "laboratoryItem.address" type="text" class="form-control" placeholder="Adresse du laboratoire">  
+                    <label for="">Adresse du laboratoire</label>
+                    <input [(ngModel)]="laboratoryItem.address" type="text" class="form-control" placeholder="Adresse du laboratoire">
                 </div>
                 <div class="form-group">
                     <label for="inputState">Responsable du laboratoire </label>
@@ -77,41 +82,41 @@
                         Aucun responsable disponible pour le moment , vous devez en ajouter pour selectionner *.
                     </small>
                 </div>
-                <button [disabled]="responsables.length==0" style="margin-top: 20px;" type="submit" class="btn btn-primary" (click)="addLaboratory()" >Ajouter</button>  
+                <button [disabled]="responsables.length==0" style="margin-top: 20px;" type="submit" class="btn btn-primary" (click)="addLaboratory()">Ajouter</button>
             </div>
         </div>
     </div>
 </ng-template>
 
 <ng-template #templateEdit>
-    <div *ngIf="currentLaboratory != null" class="addModal"> 
+    <div *ngIf="currentLaboratory != null" class="addModal">
         <div class="modal-header">
             <h5 class="text-center modal-title pull-left">Modification du laboratoire {{ currentLaboratory.name }} </h5>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalEditRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+                <span aria-hidden="true" class="visually-hidden">&times;</span>
+            </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
-                    <label for="">Nom du laboratoire</label>        
-                    <input [(ngModel)] = "currentLaboratory.name" type="text" class="form-control" placeholder="Nom du laboratoire">  
+                    <label for="">Nom du laboratoire</label>
+                    <input [(ngModel)]="currentLaboratory.name" type="text" class="form-control" placeholder="Nom du laboratoire">
                 </div>
                 <div class="form-group">
-                    <label for="">Numéro de téléphone du laboratoire</label>        
-                    <input [(ngModel)] = "currentLaboratory.phone" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">  
+                    <label for="">Numéro de téléphone du laboratoire</label>
+                    <input [(ngModel)]="currentLaboratory.phone" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">
                 </div>
                 <div class="form-group">
-                    <label for="">Adresse du laboratoire</label>        
-                    <input [(ngModel)] = "currentLaboratory.address" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">  
+                    <label for="">Adresse du laboratoire</label>
+                    <input [(ngModel)]="currentLaboratory.address" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">
                 </div>
                 <!-- <div class="form-group">
-                    <label for="">Id </label>        
-                    <input  type="number" min="0" [(ngModel)] = "currentLaboratory.id" class="form-control" placeholder="Id du laboratoire">  
+                    <label for="">Id </label>
+                    <input  type="number" min="0" [(ngModel)] = "currentLaboratory.id" class="form-control" placeholder="Id du laboratoire">
                 </div> -->
                 <!-- <div class="form-group">
-                    <label for="">Responsable</label>        
-                    <input type="text" [(ngModel)] = "currentLaboratory.responsable" class="form-control" placeholder="Nom du laboratoire">  
+                    <label for="">Responsable</label>
+                    <input type="text" [(ngModel)] = "currentLaboratory.responsable" class="form-control" placeholder="Nom du laboratoire">
                 </div> -->
                 <div class="form-group">
                     <label for="inputStateEdit">Responsable du laboratoire </label>
@@ -125,54 +130,53 @@
                         Actuel responsable : <span style="font-weight: bold;"> {{ currentLaboratory.responsable.name +" "+ currentLaboratory.responsable.firstname}} </span>
                     </small>
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="editLaboratory()" >Modifier</button>  
+                <button type="submit" class="btn btn-primary" (click)="editLaboratory()">Modifier</button>
             </div>
         </div>
     </div>
 </ng-template>
 
 <ng-template #templateDelete>
-    <div *ngIf="currentLaboratory != null" class="addModal"> 
+    <div *ngIf="currentLaboratory != null" class="addModal">
         <div class="modal-header">
             <h6 class="modal-title pull-left">Suppresion du laboratoire : {{ laboratoryName }} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDeleteRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+                <span aria-hidden="true" class="visually-hidden">&times;</span>
+            </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
                     <p>
                         Voulez-vous vraiment Supprimer ce labaoratoire ?
                     </p>
                 </div>
-                
-                <button type="submit" class="btn btn-primary" (click)="deleteLaboratory()" >Oui</button>  
+
+                <button type="submit" class="btn btn-primary" (click)="deleteLaboratory()">Oui</button>
             </div>
         </div>
     </div>
 </ng-template>
 
 <ng-template #templateDetails>
-    <div *ngIf="currentLaboratory != null" class="addModal"> 
+    <div *ngIf="currentLaboratory != null" class="addModal">
         <div class="modal-header">
             <h6 class="modal-title pull-left">{{ laboratoryName }} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDetailsRef?.hide()">
-                <span aria-hidden="true" class="visually-hidden">&times;</span>  
-            </button>  
-        </div>  
+                <span aria-hidden="true" class="visually-hidden">&times;</span>
+            </button>
+        </div>
         <div class="modal-body">
-            <div >
+            <div>
                 <div class="form-group">
                     <p>
                         Deatail du laboratoir ici
                     </p>
                 </div>
                 <hr>
-                
-                <button type="submit" class="btn btn-primary" (click)="closeDetailsModal()" >Ok</button>  
+
+                <button type="submit" class="btn btn-primary" (click)="closeDetailsModal()">Ok</button>
             </div>
         </div>
     </div>
 </ng-template>
-

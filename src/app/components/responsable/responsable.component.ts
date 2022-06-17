@@ -12,11 +12,12 @@ import { ToastService } from 'src/app/services/toastr/toast.service';
 export class ResponsableComponent implements OnInit {
 
   responsables : any = []
+  loading = true
 
   responsableItem : any = {
     name : null,
     id : null,
-    firsname : null,
+    firstname : null,
     email : null,
     phone:null,
     laboratoryId : null,
@@ -58,10 +59,23 @@ export class ResponsableComponent implements OnInit {
   }
 
   getAllFromService(){
-    this.responsables = this.responsableService.responsables
+    //this.responsables = this.responsableService.responsables
+    this.responsableService.getAllFromApi().subscribe((data) => {
+      this.responsables = data
+      this.loading = false
+    },(err) => {console.log(err)})
   }
 
   openAddModal(template : TemplateRef<any>){
+    this.responsableItem = {
+      name : null,
+      id : null,
+      firstname : null,
+      email : null,
+      phone:null,
+      laboratoryId : null,
+    }
+
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -111,11 +125,12 @@ export class ResponsableComponent implements OnInit {
     if(this.vallidateInputs()){
       this.http.post<any>(this.apiBaseUrl+'persons/add?type=Responsable', this.responsableItem).subscribe(
         (data:any) => {
+          console.log(data)
           if(data.id == 0){
             this.toastService.showDanger(data.email,"")
           }else{
-            data.type = this.responsableItem.type
-            this.responsableService.add(this.responsableItem)
+            data.type = "Responsable"
+            this.responsableService.add(data)
             this.responsableItem = this.responsableItemCopy
             this.responsables = this.responsableService.responsables
             this.toastService.showInfo("Responsable ajouté avec succès","")
@@ -129,8 +144,6 @@ export class ResponsableComponent implements OnInit {
     }else{
       this.toastService.showDanger("Donnez toutes les informations recquises.",'')
     }
-
-
   }
 
   edit(){
@@ -145,13 +158,17 @@ export class ResponsableComponent implements OnInit {
 
 
   delete(){
-    let result = this.responsableService.delete(this.currentSelectedId)
-    if(!result) return
-    this.responsables = this.responsableService.responsables
-    this.toastService.showInfo("Suppression effectuée avec succès","")
-    this.modalDeleteRef?.hide()
-    this.currentResponsable = null
-    this.currentSelectedId = null
+    // let result = this.responsableService.delete(this.currentSelectedId)
+    // if(!result) return
+    // this.responsables = this.responsableService.responsables
+    this.responsableService.delete(this.currentSelectedId).subscribe((responsables) => {
+      this.responsables = responsables
+      this.responsableService.responsables = responsables
+      this.toastService.showInfo("Suppression effectuée avec succès","")
+      this.modalDeleteRef?.hide()
+      this.currentResponsable = null
+      this.currentSelectedId = null
+    },(err) => {console.log(err)})
 
   }
 
