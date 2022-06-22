@@ -15,12 +15,12 @@ export class MemberService {
     private toastService : ToastService,
     private http: HttpClient
   ) {
-    this.getAllFromApi()
+    this.getAllFromApi().subscribe((members) => {
+      this.members = members
+    },(err) => {console.log(err)})
   }
 
-
   add(member : any){
-    member.id = this.getNextId()
     this.members.push(member)
   }
 
@@ -30,7 +30,7 @@ export class MemberService {
       this.members[index] = member
       return true
     }else{
-      this.toastService.showDanger("Aucun membre trouvé pour la modification","")
+      this.toastService.showDanger("Aucun employé trouvé pour la modification","")
       return false
     }
   }
@@ -50,23 +50,10 @@ export class MemberService {
   }
 
   deleteById(id : number){
-    //delete process in backend and get the new data from api
     let index =this.getIndexById(id)
     if(index != -1){
       this.members.splice(index,1)
     }
-  }
-
-  delete(id : number){
-    let index = this.getIndexById(id)
-    if(index != -1){
-      this.members.splice(index,1)
-      return true
-    }else{
-      this.toastService.showDanger("Aucun membre trouvé pour la suppression",'')
-      return false
-    }
-
   }
 
   getItemByIndex(index : number) : undefined | any{
@@ -80,27 +67,19 @@ export class MemberService {
   }
 
   getAllFromApi(){
-    this.http.get<any[]>(this.apiBaseUrl+'employes').subscribe(
-      (response) => {
-        this.members = response
-        console.log(this.members)
-      },
-      (error) => {
-        console.log( error)
-      }
-    )
-
+    return this.http.get<any[]>(this.apiBaseUrl+'employes')
   }
 
-  getEnabledMembers(){
-    let members : any[] = []
-    for(let i=0;i<this.members.length;i++){
-      let item = this.members[i]
-      if(item.laboratoryId == null){
-        members.push(item)
-      }
-    }
-    return members
+  getOneFromApi(id:number){
+    return this.http.get<any>(this.apiBaseUrl+'employes/'+id)
+  }
+
+  delete(id:number){
+    return this.http.get<any[]>(this.apiBaseUrl+'employes/delete/'+id)
+  }
+
+  changePassword(id:number, password:string){
+    return this.http.get<any[]>(this.apiBaseUrl+'employes/change-password/'+id+"/"+password)
   }
 
   getNextId() : number {
@@ -119,6 +98,5 @@ export class MemberService {
     }
     return false
   }
-
 
 }

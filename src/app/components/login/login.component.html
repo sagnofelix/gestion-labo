@@ -8,48 +8,48 @@
                     <h5 class="connexion text-center">Connexion</h5>
                     <hr>
                     <!-- <form> -->
-                      <div class="form-group">
+                    <div class="form-group">
                         <label for="em">Adresse e-mail {{ userInfo.email }} </label>
-                        <input type="email" [(ngModel)]="userInfo.email" class="form-control" id="em" aria-describedby="emailHelp" placeholder="Adresse e-mail">
+                        <input type="email" [(ngModel)]="userInfo.email" class="form-control form-control-sm" id="em" aria-describedby="emailHelp" placeholder="Adresse e-mail">
                         <!-- <small id="emailHelp" class="form-text text-muted">Erreur de connection avec cette addresse email</small> -->
-                      </div>
-                      <div class="form-group">
+                    </div>
+                    <div class="form-group">
                         <label for="pwd">Mot de passe</label>
-                        <input type="password" class="form-control" [(ngModel)]="userInfo.password" id="pwd" placeholder="Mot de passe">
+                        <input type="password" class="form-control form-control-sm" [(ngModel)]="userInfo.password" id="pwd" placeholder="Mot de passe">
                         <!-- <small id="emailHelp" class="form-text text-muted">Mot de passe incorrecte</small> -->
-                      </div>
-                      <hr>
+                    </div>
+                    <hr>
 
-                      <div class="row" style="margin-bottom: 20px;">
+                    <div class="row" style="margin-bottom: 20px;">
                         <span class="col-12">Connectez-vous en tant que :</span> <br> <br>
                         <div class="col-4">
-                          <div class="form-check">
-                            <input class="form-check-input" [(ngModel)] = "userInfo.type" type="radio" name="type" id="type1" value="Administrateur" checked>
-                            <label class="form-check-label" for="type1">
+                            <div class="form-check">
+                                <input class="form-check-input" [(ngModel)]="userInfo.type" type="radio" name="type" id="type1" value="Administrateur" checked>
+                                <label class="form-check-label" for="type1">
                               <span style="font-size: 12px;">Administrateur</span>
                             </label>
-                          </div>
+                            </div>
                         </div>
                         <div class="col-4">
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" [(ngModel)] = "userInfo.type" name="type" id="type2" value="Responsable" checked>
-                            <label class="form-check-label" for="type2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" [(ngModel)]="userInfo.type" name="type" id="type2" value="Responsable" checked>
+                                <label class="form-check-label" for="type2">
                               <span style="font-size: 12px;">Responsable</span>
                             </label>
-                          </div>
+                            </div>
                         </div>
                         <div class="col-4">
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" [(ngModel)] = "userInfo.type" name="type" id="type3" value="Employé" checked>
-                            <label class="form-check-label" for="type3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" [(ngModel)]="userInfo.type" name="type" id="type3" value="Employé" checked>
+                                <label class="form-check-label" for="type3">
                               <span style="font-size: 12px;">Employé</span>
                             </label>
-                          </div>
+                            </div>
                         </div>
-                      </div>
-                      
-                      <button type="submit" class="submitBtn btn btn-primary" (click)="connect()">Se Connecter</button>
-                      <!-- </form> -->
+                    </div>
+
+                    <button type="submit" class="submitBtn btn btn-primary" (click)="connect()">Se Connecter</button>
+                    <!-- </form> -->
                 </div>
                 <div class="col-md-2 col-sm-0 col-xs-0 col-lg-2"></div>
             </div>

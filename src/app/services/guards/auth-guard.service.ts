@@ -20,7 +20,8 @@ export class AuthGuardService implements CanActivate {
       return true
     }else{
       this.toastService.showDanger("Accès non autorisé , connectez-vous pour avoir l'accès à la page demandée.","")
-      this.router.navigate(['/login'],{ queryParams: { returnUrl: state.url }})
+      //this.router.navigate(['/login'],{ queryParams: { returnUrl: state.url }})
+      this.router.navigate(['/login'])
       return false
     }
   }

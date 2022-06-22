@@ -32,9 +32,8 @@ export class LaboratoireComponent implements OnInit {
     responsable : null
   }
 
-
   currentLaboratory : any = null
-  currentSelectedId : any = null
+  currentSelectedIndex : any = null
   laboratoryName = null
 
   modalRef? : BsModalRef
@@ -44,6 +43,8 @@ export class LaboratoireComponent implements OnInit {
 
   apiBaseUrl : string = "http://localhost:8083/"
   loading = true
+  waiting = false
+
 
   constructor(
     private laboratoryService : LaboratoryService,
@@ -52,30 +53,24 @@ export class LaboratoireComponent implements OnInit {
     private responsableService : ResponsableService,
     private http: HttpClient
   ) {
-    this.getEnabledResponsables()
   }
 
-  getEnabledResponsables(){
-    this.responsables = this.responsableService.getEnabledResponsables()
-    console.log("enabled 1",this.responsables)
 
-  }
 
   async ngOnInit(): Promise<void> {
     await this.getLaboratoriesFromService()
   }
 
-  isItemValid(){
-    return this.laboratoryItem.name != "" && this.laboratoryItem.address != "" && this.laboratoryItem.phone != ""
+  isItemValid(item:any){
+    return item.name != "" && item.address != "" && item.phone != ""
   }
 
   getLaboratoriesFromService(){
     this.laboratoryService.getAllFromApi().subscribe((laboratories) => {
       this.laboratories = laboratories
       console.log(this.laboratories)
-      this.responsableService.getEnabledFromApi().subscribe((data) => {
-        this.responsables = data
-        console.log(this.responsables)
+      this.responsableService.getEnabledFromApi().subscribe((responsables) => {
+        this.responsables = responsables
         this.loading = false
       })
     },(err) => {console.log(err)})
@@ -89,12 +84,10 @@ export class LaboratoireComponent implements OnInit {
     this.modalRef = this.modalService.show(template,config)
   }
 
-  openEditModal(template : TemplateRef<any>,id:number){
-    this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+  openEditModal(template : TemplateRef<any>,index:number){
+    this.currentSelectedIndex = index
     this.currentLaboratory = this.laboratories[index]
-    this.laboratoryName = this.currentLaboratory.name
-    console.log(this.currentLaboratory)
+    this.laboratoryName = this.currentLaboratory.laboratory.name
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -102,11 +95,10 @@ export class LaboratoireComponent implements OnInit {
     this.modalEditRef = this.modalService.show(template,config)
   }
 
-  openDeleteModal(template : TemplateRef<any>,id:number){
-    this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+  openDeleteModal(template : TemplateRef<any>,index:number){
+    this.currentSelectedIndex = index
     this.currentLaboratory = this.laboratories[index]
-    this.laboratoryName = this.currentLaboratory.name
+    this.laboratoryName = this.currentLaboratory.laboratory.name
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -114,11 +106,10 @@ export class LaboratoireComponent implements OnInit {
     this.modalDeleteRef = this.modalService.show(template)
   }
 
-  openDetailsModal(template : TemplateRef<any>,id:number){
-    this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+  openDetailsModal(template : TemplateRef<any>,index:number){
+    this.currentSelectedIndex = index;
     this.currentLaboratory = this.laboratories[index]
-    this.laboratoryName = this.currentLaboratory.name
+    this.laboratoryName = this.currentLaboratory.laboratory.name
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -131,23 +122,49 @@ export class LaboratoireComponent implements OnInit {
       this.toastService.showDanger("Aucun responsable choisi pour ce laboiratoire","")
       return
     }
-    if(this.isItemValid()){
-      this.http.post<any>(this.apiBaseUrl+'laboratories/add?responsable_id='+this.selectedResponsableId, this.laboratoryItem).subscribe(
-        async (laboratory:any) => {
-          console.log(laboratory);
-          if(laboratory.id == 0){
-            this.toastService.showDanger(laboratory.name,"")
-          }else{
-            this.laboratoryService.add(laboratory)
-            this.responsableService.getEnabledFromApi().subscribe((responsables) => {
-              this.responsables = responsables
-              this.laboratories = this.laboratoryService.laboratories
-              this.laboratoryItem = this.laboratoryItemCopy
-              this.selectedResponsableId = null
-              this.toastService.showInfo("Responsable ajouté avec succès","")
-              this.modalRef?.hide()
-            })
-          }
+    if(this.isItemValid(this.laboratoryItem)){
+      this.waiting = true
+      this.http.post<any[]>(this.apiBaseUrl+'laboratories/add/'+this.selectedResponsableId, this.laboratoryItem).subscribe(
+        async (laboratories:any) => {
+          this.responsableService.getEnabledFromApi().subscribe((responsables) => {
+            this.responsables = responsables
+            this.laboratoryService.laboratories = laboratories
+            this.laboratories = laboratories
+            this.laboratoryItem = {
+              name : "",
+              id : null,
+              phone : "",
+              address : "",
+              responsable : null
+            }
+            this.selectedResponsableId = null
+            this.waiting = false
+            this.toastService.showInfo("Laboratoire ajouté avec succès","")
+            this.modalRef?.hide()
+          })
+        },
+        (error) => {
+          this.waiting = false
+          console.log(error)
+        }
+      )
+    }else{
+      this.toastService.showDanger("Donnez toutes les information requises","")
+    }
+  }
+
+  editLaboratory(){
+    if(this.isItemValid(this.currentLaboratory.laboratory)){
+      this.http.post<any[]>(this.apiBaseUrl+'laboratories/edit', this.currentLaboratory.laboratory).subscribe(
+        async (laboratories:any) => {
+          console.log(laboratories);
+          this.laboratoryService.laboratories = laboratories
+          this.laboratories = this.laboratoryService.laboratories
+          this.toastService.showInfo("Modification effectuée avec succès","")
+          this.modalEditRef?.hide()
+          this.currentLaboratory = null
+          this.currentSelectedIndex = null
+          this.selectedResponsableId = null
         },
         (error) => {
           console.log(error)
@@ -156,49 +173,18 @@ export class LaboratoireComponent implements OnInit {
     }else{
       this.toastService.showDanger("Donnez toutes les information requises","")
     }
-
-
   }
-
-  editLaboratory(){
-    let index = this.getIndex(this.currentSelectedId)
-    if(index != -1){
-      if(this.selectedResponsableId != null){
-        let oldResponsableLaboId = this.currentLaboratory.responsable.id
-        if(this.selectedResponsableId != oldResponsableLaboId){
-          this.currentLaboratory.responsable.laboratoryId = null
-          this.responsableService.updateLaboratoryId(this.currentLaboratory.responsable)
-        }
-        let responsable = this.getResponsableById(this.selectedResponsableId)
-        responsable.laboratoryId = this.currentLaboratory.id
-        this.responsableService.updateLaboratoryId(responsable)
-        this.currentLaboratory.responsable = responsable
-        this.getEnabledResponsables()
-      }
-      this.laboratoryService.edit(this.currentLaboratory)
-      this.laboratories = this.laboratoryService.laboratories
-      this.toastService.showInfo("Modification effectuée avec succès","")
-      this.modalEditRef?.hide()
-      this.currentLaboratory = null
-      this.currentSelectedId = null
-      this.selectedResponsableId = null
-    }else{
-      this.toastService.showDanger("Aucun laboratoire trouvé pour la modification",'')
-    }
-  }
-
 
   deleteLaboratory(){
-    this.laboratoryService.delete(this.currentSelectedId).subscribe((laboratories) => {
+    this.laboratoryService.delete(this.currentLaboratory.laboratory.id).subscribe((laboratories) => {
       this.laboratories = laboratories
       this.laboratoryService.laboratories = laboratories
       this.responsableService.getEnabledFromApi().subscribe((data) => {
         this.responsables = data
-
         this.toastService.showInfo("Suppression effectuée avec succès","")
         this.modalDeleteRef?.hide()
         this.currentLaboratory = null
-        this.currentSelectedId = null
+        this.currentSelectedIndex = null
       })
     },(err) => {console.log(err)})
 
@@ -207,35 +193,7 @@ export class LaboratoireComponent implements OnInit {
   closeDetailsModal(){
     this.modalDetailsRef?.hide()
     this.currentLaboratory = null
-    this.currentSelectedId = null
+    this.currentSelectedIndex = null
     this.selectedResponsableId = null
-  }
-
-  isSelected(responsable: any): boolean {
-    return this.currentLaboratory.responsable == responsable;
-  }
-
-  getIndex(id:number){
-    for(let i=0;i< this.laboratories.length;i++){
-      if(this.laboratories[i].id == id) return i
-    }
-    return -1
-  }
-
-  getResponsableById(id:number) : undefined | any{
-    return this.responsables.find((responsable) => {
-      return responsable.id == id
-    })
-  }
-
-  getLResponsableForLabo(budget_id:number){
-    for(let i=0;i< this.responsables.length;i++){
-      let responsable = this.responsables[i]
-      // for(let j=0;j< labo.budgets.length;j++){
-      //   let budget = labo.budgets[j]
-      //   if(budget_id == budget.id) return labo
-      // }
-    }
-    return null
   }
 }

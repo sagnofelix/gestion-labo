@@ -13,14 +13,12 @@ export class ResponsableService {
     private toastService : ToastService,
     private http: HttpClient
   ) {
-    this.getAllFromApi().subscribe((data) => {
-      this.responsables = data
-    },(err) => {console.log(err)})
+    // this.getAllFromApi().subscribe((responsables) => {
+    //   this.responsables = responsables
+    // },(err) => {console.log(err)})
   }
 
-
   add(responsable : any){
-    //responsable.id = this.getNextId()
     this.responsables.push(responsable)
   }
 
@@ -75,18 +73,7 @@ export class ResponsableService {
   }
 
   delete(id:number){
-    return this.http.get<any[]>(this.apiBaseUrl+'responsables/delete?id='+id)
-  }
-
-  getEnabledResponsables(){
-    let responsables : any[] = []
-    for(let i=0;i<this.responsables.length;i++){
-      let item = this.responsables[i]
-      if(item.laboratoryId == null){
-        responsables.push(item)
-      }
-    }
-    return responsables
+    return this.http.get<any[]>(this.apiBaseUrl+'responsables/delete/'+id)
   }
 
   getNextId() : number {
@@ -105,6 +92,4 @@ export class ResponsableService {
     }
     return false
   }
-
-
 }

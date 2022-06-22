@@ -24,3 +24,8 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+.waiting {
+    height: 110px;
+    width: 110px;
+}

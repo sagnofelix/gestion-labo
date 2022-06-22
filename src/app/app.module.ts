@@ -18,6 +18,9 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { HttpClientModule } from '@angular/common/http';
 import { LaboratoireComponent } from './components/laboratoire/laboratoire.component';
 import { AuthGuardService } from './services/guards/auth-guard.service';
+import { NeedComponent } from './components/need/need.component';
+import { EmployeProfilComponent } from './components/employe-profil/employe-profil.component';
+import { ChartComponent } from './components/chart/chart.component';
 
 
 @NgModule({
@@ -31,7 +34,10 @@ import { AuthGuardService } from './services/guards/auth-guard.service';
     LoginComponent,
     SearchComponent,
     NotFoundComponent,
-    LaboratoireComponent
+    LaboratoireComponent,
+    NeedComponent,
+    EmployeProfilComponent,
+    ChartComponent
   ],
   imports: [
     BrowserModule,

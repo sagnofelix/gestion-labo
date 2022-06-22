@@ -5,9 +5,9 @@ import { ToastService } from '../toastr/toast.service';
 @Injectable({
   providedIn: 'root'
 })
-export class BudgetService {
+export class NeedService {
 
-  budgets : any[] = []
+  needs : any[] = []
   apiBaseUrl : string = "http://localhost:8083/"
 
 
@@ -16,53 +16,60 @@ export class BudgetService {
   }
 
 
-  add(budget : any){
-    this.budgets.push(budget)
+  add(need : any){
+    this.needs.push(need)
   }
 
-  edit(budget : any){
-    let index = this.getIndexById(budget.id)
+  edit(need : any){
+    let index = this.getIndexById(need.id)
     if(index != -1){
-      this.budgets[index] = budget
+      this.needs[index] = need
       return true
     }else{
-      this.toastService.showDanger("Aucun budget trouvé pour la modification",'')
+      this.toastService.showDanger("Aucun besoin trouvé pour la modification",'')
       return false
     }
   }
 
   delete(id:number){
-    return this.http.get<any[]>(this.apiBaseUrl+'budgets/delete/'+id)
+    return this.http.get<any[]>(this.apiBaseUrl+'needs/delete/'+id)
   }
 
   deleteById(id : number){
     //delete process in backend and get the new data from api
     let index =this.getIndexById(id)
     if(index != -1){
-      this.budgets.splice(index,1)
+      this.needs.splice(index,1)
     }
   }
 
   getIndexById(id:number){
-    for(let i=0;i< this.budgets.length;i++){
-      if(this.budgets[i].id == id) return i
+    for(let i=0;i< this.needs.length;i++){
+      if(this.needs[i].id == id) return i
     }
     return -1
   }
 
   getItemByIndex(index : number) : undefined | any{
-    return this.budgets[index]
+    return this.needs[index]
   }
 
   getItemById(id:number) : undefined | any{
-    return this.budgets.find((budget) => {
-      return budget.id == id
+    return this.needs.find((need) => {
+      return need.id == id
     })
   }
 
+  // getAllFromApi(){
+  //   //get needs from api
+  //   let needs : any[] = []
+
+  //   this.needs = needs
+  // }
+
   getNextId() : number {
-    if(this.budgets.length == 0) return 1
-    let id = this.budgets[this.budgets.length -1].id+1
+    if(this.needs.length == 0) return 1
+    let id = this.needs[this.needs.length -1].id+1
     if(!this.idExist(id)) return id
     while(this.idExist(id)){
       id++
@@ -71,13 +78,13 @@ export class BudgetService {
   }
 
   idExist(id:number) : boolean{
-    for(let i=0;i<this.budgets.length;i++){
-      if(this.budgets[i].id == id) return true
+    for(let i=0;i<this.needs.length;i++){
+      if(this.needs[i].id == id) return true
     }
     return false
   }
 
   getAllFromApi(){
-    return this.http.get<any[]>(this.apiBaseUrl+'budgets')
+    return this.http.get<any[]>(this.apiBaseUrl+'needs')
   }
 }

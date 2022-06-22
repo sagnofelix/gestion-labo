@@ -1,0 +1,250 @@
+<div class="container-fluid bloc">
+    <div class="row">
+        <div class="col-2">
+            <div class="left">
+                <a class="nav-link left-nav-item btn" (click)="changeOption(0)">Mes information</a>
+                <a class="nav-link left-nav-item btn" (click)="changeOption(1)">Mes Besoins</a>
+                <a class="nav-link left-nav-item btn" (click)="openAddModal(template)">Ajouter un besoin</a>
+                <a class="nav-link left-nav-item new-password btn" (click)="openChangePasswordModal(templateChangePassword)">Nouveau mot de passe</a>
+            </div>
+        </div>
+        <div class="col-10 right">
+            <div *ngIf='!loading && option==0' class="row">
+                <div class="col-12">
+                    <h6 class="all-needs-text text-center">Mes informations</h6>
+                </div>
+                <div class="info col-12 mt-4">
+                    <div class="row">
+                        <h6 class="col-12">Information Personnelles</h6>
+                        <hr>
+                        <table class="table col-12">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nom</th>
+                                    <th scope="col">Prénom</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Téléphone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ user.user.name }}</td>
+                                    <td>{{ user.user.firstname }}</td>
+                                    <td>{{ user.user.email }}</td>
+                                    <td>{{ user.user.phone }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <h6 class="col-12">Laboratoire de Recherche</h6>
+                        <hr>
+                        <table class="table col-12">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nom</th>
+                                    <th scope="col">Adresse</th>
+                                    <th scope="col"></th>
+                                    <th scope="col">Téléphone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ user.laboratory.name }}</td>
+                                    <td>{{ user.laboratory.address }}</td>
+                                    <td></td>
+                                    <td>{{ user.laboratory.phone }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <h6 class="col-12">Budgets à ma disposition</h6>
+                        <table *ngIf="personnalbudgets.length != 0" class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Année</th>
+                                    <th scope="col">Montant du budget personnel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let personnalbudget of personnalbudgets;let i=index">
+                                    <th scope="row">{{ i + 1 }} </th>
+                                    <td>{{ personnalbudget.year}}</td>
+                                    <td>{{ personnalbudget.personnalBudget}} </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div *ngIf="personnalbudgets.length == 0" class="col-12">
+                            <hr>
+                            <p class="emptyText">Aucun budget personnel à votre disposition pour le moment.</p>
+                        </div>
+                    </div>
+                    <div class="row mb-5"></div>
+                </div>
+            </div>
+            <div *ngIf='!loading && option==1' class="row">
+                <div class="col-12">
+                    <h6 class="all-needs-text text-center">Tous mes besoins</h6>
+                    <!-- <button class="addOpenModal" (click)="openAddModal(template)">Ajouter un besoin</button> -->
+                </div>
+                <!-- <h6>Tous mes besoins</h6> -->
+                <table *ngIf="needs.length != 0" class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Montant</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of needs;let i=index">
+                            <th scope="row">{{ i + 1 }} </th>
+                            <td>{{ item.description}} </td>
+                            <td>{{ item.amount + " " + "Dhs"}} </td>
+                            <td>
+                                <!-- <i (click)="openEditModal(templateEdit,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i> -->
+                                <i (click)="openDetailsModal(templateDetails,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
+                                <!-- <i (click)="openDeleteModal(templateDelete,i)" class="fa-solid fa-trash-can"></i> -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div *ngIf="needs.length == 0" class="col-12 empty">
+                    <hr>
+                    <p class="emptyText">Aucun besoin ajouté pour le moment.</p>
+                </div>
+            </div>
+            <div *ngIf='loading' class="row">
+                <div class="col-3"></div>
+                <div class="col-6">
+                    <img class="loaging" src="assets/images/loading.gif" alt="">
+                </div>
+                <div class="col-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #template>
+    <div class="addModal">
+        <div class="modal-header">
+            <h6 class="modal-title pull-left">Ajouter un besoin</h6>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <div class="form-group">
+                    <label for="">Description</label>
+                    <input [(ngModel)]="needItem.description" type="text" class="form-control form-control-sm" placeholder="Description du besoin">
+                </div>
+                <div class="form-group">
+                    <label for="">Montant du besoin</label>
+                    <input [(ngModel)]="needItem.amount" type="number" min="0" class="form-control form-control-sm" placeholder="Montant du besoin">
+                </div>
+                <div class="form-group">
+                    <label for="inputState">Quel budget personnel utilisé pour ce besoin ? </label>
+                    <select [(ngModel)]="selectedBudgetId" id="inputState" class="form-control form-control-sm">
+                    <option [ngValue]="null" selected>Choisir...</option>
+                    <option  *ngFor="let personnalbudget of personnalbudgets;let i=index" [ngValue]="personnalbudget.id">Budget de {{ personnalbudget.year +" ( "+ personnalbudget.personnalBudget+ " dhs )"}} </option>
+                  </select>
+                    <small *ngIf="personnalbudgets.length==0" style="color: red !important;" id="emailHelp" class="form-text text-muted">
+                      Aucun budget personnel disponible pour le moment *.
+                  </small>
+                </div>
+                <!-- <div class="form-group">
+                    <label for="inputState">Propriétaire du budget </label>
+                    <select [(ngModel)]="selectedEmployeId" id="inputState" class="form-control">
+                      <option [ngValue]="null" selected>Choisir...</option>
+                      <option  *ngFor="let item of members;let i=index" [ngValue]="item.employe.id">{{ item.employe.name + " " + item.employe.firstname}} </option>
+                    </select>
+                    <small *ngIf="members.length==0" style="color: red !important;" id="emailHelp" class="form-text text-muted">
+                      Aucun employé disponible pour le moment *.
+                    </small>
+                </div> -->
+                <button type="submit" class="btn btn-primary" (click)="add()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateDelete>
+    <div *ngIf="currentNeed != null" class="addModal">
+        <div class="modal-header">
+            <h6 class="modal-title pull-left">Suppresion du besoin</h6>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDeleteRef?.hide()">
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <div class="form-group">
+                    <p>
+                        Voulez-vous vraiment Supprimer ce besoin ?
+                    </p>
+                    <p>
+                        Le montant de ce besoin étant déjà consommé , sa suppression n'aura aucun effet sur le budget auquel il a été lié.
+                    </p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" (click)="delete()">Oui</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateDetails>
+    <div *ngIf="currentNeed != null" class="addModal">
+        <div class="modal-header">
+            <h6 class="modal-title pull-left">Details du besoin </h6>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDetailsRef?.hide()">
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <h6>Description :</h6>
+                <p>
+                    {{ currentNeed.description }}
+                </p>
+                <p>
+                    Montant dépensé pour ce besoin :{{ currentNeed.amount }} dhs
+                </p>
+                <button type="submit" style="margin-top: 30px;" class="btn btn-primary" (click)="closeDetailsModal()">Ok</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateChangePassword>
+    <div class="addModal">
+        <div class="modal-header">
+            <h6 class="modal-title pull-left">Changer votre mot de passe</h6>
+            <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalChangePasswordRef?.hide()">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <div class="form-group">
+                    <label for="">Ancien Mot de passe</label>
+                    <input [(ngModel)]="passwordInfo.old" type="password" class="form-control" placeholder="Votre ancien Mot de passe">
+                </div>
+                <div class="form-group">
+                    <label for="">Nouveau mot de passe</label>
+                    <input [(ngModel)]="passwordInfo.new" type="password" class="form-control" placeholder="Nouveau Mot de passe">
+                </div>
+                <div class="form-group">
+                    <label for="">Comfirmer le mot de passe</label>
+                    <input [(ngModel)]="passwordInfo.confirm" type="password" class="form-control" placeholder="Confirmer le Mot de passe">
+                </div>
+
+                <button type="submit" class="btn btn-primary" (click)="changePassword()">Changer</button>
+            </div>
+        </div>
+    </div>
+</ng-template>

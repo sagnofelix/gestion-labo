@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { AuthService } from 'src/app/services/auth/auth.service';
 import { ResponsableService } from 'src/app/services/responsable/responsable.service';
 import { ToastService } from 'src/app/services/toastr/toast.service';
 
@@ -13,6 +14,7 @@ export class ResponsableComponent implements OnInit {
 
   responsables : any = []
   loading = true
+  waiting = false
 
   responsableItem : any = {
     name : null,
@@ -33,9 +35,8 @@ export class ResponsableComponent implements OnInit {
   }
 
   currentResponsable : any = null
-  currentSelectedId : any = null
+  currentSelectedIndex : any = null
   fullname : any = null
-
 
   modalRef? : BsModalRef
   modalEditRef? : BsModalRef
@@ -44,13 +45,12 @@ export class ResponsableComponent implements OnInit {
 
   apiBaseUrl : string = "http://localhost:8083/"
 
-
-
   constructor(
     private responsableService : ResponsableService,
     private modalService : BsModalService,
     private toastService : ToastService,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService : AuthService
   ) {
     this.getAllFromService()
   }
@@ -59,9 +59,10 @@ export class ResponsableComponent implements OnInit {
   }
 
   getAllFromService(){
-    //this.responsables = this.responsableService.responsables
-    this.responsableService.getAllFromApi().subscribe((data) => {
-      this.responsables = data
+    this.responsableService.getAllFromApi().subscribe((responsables) => {
+      console.log(responsables)
+      this.responsables = responsables
+      this.responsableService.responsables = responsables
       this.loading = false
     },(err) => {console.log(err)})
   }
@@ -83,11 +84,10 @@ export class ResponsableComponent implements OnInit {
     this.modalRef = this.modalService.show(template,config)
   }
 
-  openEditModal(template : TemplateRef<any>,id:number){
-    this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+  openEditModal(template : TemplateRef<any>,index:number){
+    this.currentSelectedIndex = index
     this.currentResponsable = this.responsables[index]
-    this.fullname = this.currentResponsable.name + " " + this.currentResponsable.firstname
+    this.fullname = this.currentResponsable.responsable.name + " " + this.currentResponsable.responsable.firstname
     console.log(this.currentResponsable)
     let config = {
       backdrop: true,
@@ -96,12 +96,10 @@ export class ResponsableComponent implements OnInit {
     this.modalEditRef = this.modalService.show(template,config)
   }
 
-
-
-  openDeleteModal(template : TemplateRef<any>,id:number){
-    this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+  openDeleteModal(template : TemplateRef<any>,index:number){
+    this.currentSelectedIndex = index
     this.currentResponsable = this.responsables[index]
+    console.log(this.currentResponsable)
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -109,11 +107,12 @@ export class ResponsableComponent implements OnInit {
     this.modalDeleteRef = this.modalService.show(template)
   }
 
-  openDetailsModal(template : TemplateRef<any>,id:number){
-    this.currentSelectedId = id
-    let index = this.getIndex(this.currentSelectedId)
+  openDetailsModal(template : TemplateRef<any>,index:number){
+    this.currentSelectedIndex = index
     this.currentResponsable = this.responsables[index]
-
+    console.log(this.currentResponsable)
+    this.fullname = this.currentResponsable.responsable.name + " " + this.currentResponsable.responsable.firstname
+    console.log(this.fullname)
     let config = {
       backdrop: true,
       ignoreBackdropClick: true
@@ -122,22 +121,28 @@ export class ResponsableComponent implements OnInit {
   }
 
   add(){
-    if(this.vallidateInputs()){
-      this.http.post<any>(this.apiBaseUrl+'persons/add?type=Responsable', this.responsableItem).subscribe(
+    this.waiting = true
+    if(this.vallidateInputs(this.responsableItem)){
+      this.waiting = true
+      this.http.post<any[]>(this.apiBaseUrl+'responsables/add', this.responsableItem).subscribe(
         (data:any) => {
           console.log(data)
-          if(data.id == 0){
-            this.toastService.showDanger(data.email,"")
-          }else{
-            data.type = "Responsable"
-            this.responsableService.add(data)
-            this.responsableItem = this.responsableItemCopy
-            this.responsables = this.responsableService.responsables
-            this.toastService.showInfo("Responsable ajouté avec succès","")
-            this.modalRef?.hide()
+          data.type = "Responsable"
+
+          if(data.length == 1 && data[0].hasError){
+            this.toastService.showDanger(data[0].message,"")
+            this.waiting = false
+            return
           }
+          this.responsableService.responsables = data
+          this.responsableItem = this.responsableItemCopy
+          this.responsables = this.responsableService.responsables
+          this.waiting = false
+          this.toastService.showInfo("Responsable ajouté avec succès","")
+          this.modalRef?.hide()
         },
         (error) => {
+          this.waiting = false
           console.log(error)
         }
       )
@@ -153,39 +158,33 @@ export class ResponsableComponent implements OnInit {
     this.toastService.showInfo("Modification effectuée avec succès","")
     this.modalEditRef?.hide()
     this.currentResponsable = null
-    this.currentSelectedId = null
+    this.currentSelectedIndex = null
   }
 
 
   delete(){
-    // let result = this.responsableService.delete(this.currentSelectedId)
-    // if(!result) return
-    // this.responsables = this.responsableService.responsables
-    this.responsableService.delete(this.currentSelectedId).subscribe((responsables) => {
+    this.responsableService.delete(this.currentResponsable.responsable.id).subscribe((responsables) => {
       this.responsables = responsables
       this.responsableService.responsables = responsables
       this.toastService.showInfo("Suppression effectuée avec succès","")
       this.modalDeleteRef?.hide()
       this.currentResponsable = null
-      this.currentSelectedId = null
+      this.currentSelectedIndex = null
     },(err) => {console.log(err)})
 
-  }
-
-  getIndex(id:number){
-    for(let i=0;i< this.responsables.length;i++){
-      if(this.responsables[i].id == id) return i
-    }
-    return -1
   }
 
   closeDetailsModal(){
     this.modalDetailsRef?.hide()
     this.currentResponsable = null
-    this.currentSelectedId = null
+    this.currentSelectedIndex = null
   }
 
-  vallidateInputs(){
-    return this.responsableItem.email != null && this.responsableItem.phone != null && this.responsableItem.password != null && this.responsableItem.name != null && this.responsableItem.firstname != null
+  vallidateInputs(item :any){
+    return item.email != null && item.phone != null && item.password != null && item.name != null && item.firstname != null
+  }
+
+  showResponsableLink() : boolean {
+    return this.authService.user.type=="Administrateur"
   }
 }

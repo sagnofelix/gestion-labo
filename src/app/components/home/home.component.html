@@ -1,1 +1,31 @@
-<p>home works!</p>
+<div class="container-fluid body">
+    <div class="row">
+        <div class="col-md-2 col-sm-0 col-xs-0 col-lg-2"></div>
+        <div class="col-md-8 col-sm-12 col-xs-12 col-lg-8">
+            <div class="loginpage row">
+                <div class="col-md-1 col-sm-0 col-xs-0 col-lg-1"></div>
+                <div class="col-md-10 col-sm-12 col-xs-12 col-lg-10">
+                    <h5 class="connexion text-center">Gestion de Laboratoires</h5>
+                    <hr>
+                    <div class="divider" style="margin-top:50px"></div>
+                    <div *ngIf='!loading' class="row">
+                        <div class="col-4">
+                            <i class="icon fa-solid fa-flask-vial text-center"></i>
+                            <h6>{{ laboratories.length }} Laboratoires</h6>
+                        </div>
+                        <div class="col-4">
+                            <i class="icon fa-solid fa-user-group"></i>
+                            <h6>{{ responsables.length }} Responsables</h6>
+                        </div>
+                        <div class="col-4">
+                            <i class="icon fa-solid fa-users"></i>
+                            <h6>{{ members.length }} Employés</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1 col-sm-0 col-xs-0 col-lg-1"></div>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-0 col-xs-0 col-lg-2"></div>
+    </div>
+</div>

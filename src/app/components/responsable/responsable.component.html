@@ -3,7 +3,7 @@
         <div class="col-md-2 col-sm-2 col-xs-0 col-lg-2"></div>
         <div class="col-md-8 col-sm-8 col-xs-0 col-lg-8">
             <div *ngIf='!loading' class="row">
-                <div class="col-12">
+                <div class="col-12" *ngIf="showResponsableLink()">
                     <button class="addOpenModal" (click)="openAddModal(template)">Ajouter un responsable</button>
                 </div>
                 <table *ngIf="responsables.length != 0" class="table table-dark">
@@ -17,15 +17,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let responsable of responsables;let i=index">
+                        <tr *ngFor="let item of responsables;let i=index">
                             <th scope="row">{{ i + 1 }} </th>
-                            <td>{{ responsable.name}} {{ responsable.firsname}} </td>
-                            <td>{{ responsable.email}} </td>
-                            <td>{{ responsable.phone}} </td>
+                            <td>{{ item.responsable.name}} {{ item.responsable.firstname}} </td>
+                            <td>{{ item.responsable.email}} </td>
+                            <td>{{ item.responsable.phone}} </td>
                             <td>
-                                <i (click)="openEditModal(templateEdit,responsable.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
-                                <i (click)="openDetailsModal(templateDetails,responsable.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
-                                <i (click)="openDeleteModal(templateDelete,responsable.id)" class="fa-solid fa-trash-can"></i>
+                                <!-- <i (click)="openEditModal(templateEdit,item.responsable.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i> -->
+                                <i (click)="openDetailsModal(templateDetails,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
+                                <i *ngIf="showResponsableLink()" (click)="openDeleteModal(templateDelete,i)" class="fa-solid fa-trash-can"></i>
                             </td>
                         </tr>
                     </tbody>
@@ -50,7 +50,7 @@
 <ng-template #template>
     <div class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Ajouter un responsable</h4>
+            <h6 class="modal-title pull-left">Ajouter un responsable</h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
                 <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>
@@ -59,26 +59,33 @@
             <div>
                 <div class="form-group">
                     <label for="">Nom</label>
-                    <input [(ngModel)]="responsableItem.name" type="text" class="form-control" placeholder="Nom du responsable">
+                    <input [(ngModel)]="responsableItem.name" type="text" class="form-control form-control-sm" placeholder="Nom du responsable">
                 </div>
                 <div class="form-group">
                     <label for="">Prénom</label>
-                    <input [(ngModel)]="responsableItem.firstname" type="text" class="form-control" placeholder="Prénom du responsable">
+                    <input [(ngModel)]="responsableItem.firstname" type="text" class="form-control form-control-sm" placeholder="Prénom du responsable">
                 </div>
                 <div class="form-group">
                     <label for="">Email</label>
-                    <input [(ngModel)]="responsableItem.email" type="email" class="form-control" placeholder="Email du responsable">
+                    <input [(ngModel)]="responsableItem.email" type="email" class="form-control form-control-sm" placeholder="Email du responsable">
                 </div>
                 <div class="form-group">
                     <label for="">Téléphone</label>
-                    <input [(ngModel)]="responsableItem.phone" type="text" class="form-control" placeholder="Phone du responsable">
+                    <input [(ngModel)]="responsableItem.phone" type="text" class="form-control form-control-sm" placeholder="Phone du responsable">
                 </div>
                 <div class="form-group">
                     <label for="">Mot de passe</label>
-                    <input [(ngModel)]="responsableItem.password" type="text" class="form-control" placeholder="Mot  de passe du responsable">
+                    <input [(ngModel)]="responsableItem.password" type="password" class="form-control form-control-sm" placeholder="Mot  de passe du responsable">
                     <small id="" class="form-text text-muted notice">Il devra changer dès la première connexion <span style="color: orange;">*</span></small>
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="add()">Ajouter</button>
+                <div *ngIf='waiting' class="row">
+                    <div class="col-4"></div>
+                    <div class="col-4">
+                        <img class="waiting" src="assets/images/loading.gif" alt="">
+                    </div>
+                    <div class="col-4"></div>
+                </div>
+                <button *ngIf='!waiting' type="submit" class="btn btn-primary mb-2" (click)="add()">Ajouter</button>
             </div>
         </div>
     </div>
@@ -87,7 +94,7 @@
 <ng-template #templateEdit>
     <div *ngIf="currentResponsable != null" class="addModal">
         <div class="modal-header">
-            <h6 class="modal-title pull-left">Modification du responsable : {{fullname}} </h6>
+            <h6 class="modal-title pull-left">Modification du responsable : {{ currentResponsable.responsable.name + " " + currentResponsable.responsable.firstname }} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalEditRef?.hide()">
                 <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>
@@ -96,19 +103,19 @@
             <div>
                 <div class="form-group">
                     <label for="">Nom</label>
-                    <input [(ngModel)]="currentResponsable.name" type="text" class="form-control" placeholder="Nom du reponsable">
+                    <input [(ngModel)]="currentResponsable.name" type="text" class="form-control form-control-sm" placeholder="Nom du reponsable">
                 </div>
                 <div class="form-group">
                     <label for="">Prénom</label>
-                    <input [(ngModel)]="currentResponsable.firstname" type="text" class="form-control" placeholder="Prénom du responsable">
+                    <input [(ngModel)]="currentResponsable.firstname" type="text" class="form-control form-control-sm" placeholder="Prénom du responsable">
                 </div>
                 <div class="form-group">
                     <label for="">Email</label>
-                    <input [(ngModel)]="currentResponsable.email" type="email" class="form-control" placeholder="Email du responsable">
+                    <input [(ngModel)]="currentResponsable.email" type="email" class="form-control form-control-sm" placeholder="Email du responsable">
                 </div>
                 <div class="form-group">
                     <label for="">Téléphone</label>
-                    <input [(ngModel)]="currentResponsable.phone" type="text" class="form-control" placeholder="Téléphone du responsable">
+                    <input [(ngModel)]="currentResponsable.phone" type="text" class="form-control form-control-sm" placeholder="Téléphone du responsable">
                 </div>
                 <button type="submit" class="btn btn-primary" (click)="edit()">Modifier</button>
             </div>
@@ -119,7 +126,7 @@
 <ng-template #templateDelete>
     <div *ngIf="currentResponsable != null" class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">Suppresion du responsable : {{ currentResponsable.name }} {{ currentResponsable.firsname }} </h4>
+            <h6 class="modal-title text-center">Suppresion du responsable : {{ currentResponsable.responsable.name + " " + currentResponsable.responsable.firstname }} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDeleteRef?.hide()">
                 <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>
@@ -141,7 +148,7 @@
 <ng-template #templateDetails>
     <div *ngIf="currentResponsable != null" class="addModal">
         <div class="modal-header">
-            <h4 class="modal-title pull-left">{{ currentResponsable.name }} {{ currentResponsable.firsname }} </h4>
+            <h6 class="modal-title pull-left">{{ fullname }} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalDetailsRef?.hide()">
                 <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>

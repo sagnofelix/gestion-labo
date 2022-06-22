@@ -16,12 +16,13 @@ export class IsEmployeGuardService {
   ) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean  | Observable<boolean> | Promise<boolean>  {
-    if(this.authService.user.type=="Administrateur" || this.authService.user.type=="Responsable" || this.authService.user.type=="Employé") {
+    if(this.authService.user.type=="Employé") {
       return true
     }else{
       this.authService.signOut()
-      this.toastService.showDanger("Accès réservé à l'administrateur , connectez-vous pour avoir l'accès à la page demandée.","")
-      this.router.navigate(['/login'],{ queryParams: { returnUrl: state.url }})
+      this.toastService.showDanger("Accès réservé aux employés , connectez-vous pour avoir l'accès à la page demandée.","")
+      // this.router.navigate(['/login'],{ queryParams: { returnUrl: state.url }})
+      //this.router.navigate(['/login'])
       return false
     }
   }

@@ -21,7 +21,8 @@ export class IsResponsableGuardService {
     }else{
       this.authService.signOut()
       this.toastService.showDanger("Accès réservé à l'administrateur et aux responsables , connectez-vous pour avoir l'accès à la page demandée.","")
-      this.router.navigate(['/login'],{ queryParams: { returnUrl: state.url }})
+      // this.router.navigate(['/login'],{ queryParams: { returnUrl: state.url }})
+      //this.router.navigate(['/login'])
       return false
     }
   }

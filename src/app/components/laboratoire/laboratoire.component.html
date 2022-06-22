@@ -13,19 +13,21 @@
                             <th scope="col">Nom</th>
                             <th scope="col">Adresse</th>
                             <th scope="col">Téléphone</th>
+                            <th scope="col">Responsable</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let laboratory of laboratories;let i=index">
+                        <tr *ngFor="let itme of laboratories;let i=index">
                             <th scope="row">{{ i + 1 }} </th>
-                            <td>{{ laboratory.name}} </td>
-                            <td>{{ laboratory.address}} </td>
-                            <td>{{ laboratory.phone}} </td>
+                            <td>{{ itme.laboratory.name}} </td>
+                            <td>{{ itme.laboratory.address}} </td>
+                            <td>{{ itme.laboratory.phone}} </td>
+                            <td>{{ itme.responsable.name + " " + itme.responsable.firstname}} </td>
                             <td>
-                                <i (click)="openEditModal(templateEdit,laboratory.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
-                                <i (click)="openDetailsModal(templateDetails,laboratory.id)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
-                                <i (click)="openDeleteModal(templateDelete,laboratory.id)" class="fa-solid fa-trash-can"></i>
+                                <i (click)="openEditModal(templateEdit,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-pen-to-square"></i>
+                                <i (click)="openDetailsModal(templateDetails,i)" style="color: white;margin-right: 10px;" class="fa-solid fa-eye "></i>
+                                <i (click)="openDeleteModal(templateDelete,i)" class="fa-solid fa-trash-can"></i>
                             </td>
                         </tr>
                     </tbody>
@@ -62,27 +64,34 @@
             <div>
                 <div class="form-group">
                     <label for="">Nom du laboratoire</label>
-                    <input [(ngModel)]="laboratoryItem.name" type="text" class="form-control" placeholder="Nom du laboratoire">
+                    <input [(ngModel)]="laboratoryItem.name" type="text" class="form-control form-control-sm" placeholder="Nom du laboratoire">
                 </div>
                 <div class="form-group">
                     <label for="">Numéro de téléphone du laboratoire</label>
-                    <input [(ngModel)]="laboratoryItem.phone" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">
+                    <input [(ngModel)]="laboratoryItem.phone" type="text" class="form-control form-control-sm" placeholder="Numéro de téléphone du laboratoire">
                 </div>
                 <div class="form-group">
                     <label for="">Adresse du laboratoire</label>
-                    <input [(ngModel)]="laboratoryItem.address" type="text" class="form-control" placeholder="Adresse du laboratoire">
+                    <input [(ngModel)]="laboratoryItem.address" type="text" class="form-control form-control-sm" placeholder="Adresse du laboratoire">
                 </div>
                 <div class="form-group">
                     <label for="inputState">Responsable du laboratoire </label>
-                    <select [(ngModel)]="selectedResponsableId" id="inputState" class="form-control">
+                    <select [(ngModel)]="selectedResponsableId" id="inputState" class="form-control form-control-sm">
                       <option [ngValue]="null" selected>Choisir...</option>
-                      <option  *ngFor="let responsable of responsables;let i=index" [ngValue]="responsable.id">{{ responsable.name +" "+ responsable.firstname}} </option>
+                      <option  *ngFor="let item of responsables;let i=index" [ngValue]="item.responsable.id">{{ item.responsable.name +" "+ item.responsable.firstname}} </option>
                     </select>
                     <small *ngIf="responsables.length==0" style="color: red !important;" id="emailHelp" class="form-text text-muted">
                         Aucun responsable disponible pour le moment , vous devez en ajouter pour selectionner *.
                     </small>
                 </div>
-                <button [disabled]="responsables.length==0" style="margin-top: 20px;" type="submit" class="btn btn-primary" (click)="addLaboratory()">Ajouter</button>
+                <div *ngIf='waiting' class="row">
+                    <div class="col-4"></div>
+                    <div class="col-4">
+                        <img class="waiting" src="assets/images/loading.gif" alt="">
+                    </div>
+                    <div class="col-4"></div>
+                </div>
+                <button *ngIf='!waiting' [disabled]="responsables.length==0" style="margin-top: 20px;" type="submit" class="btn btn-primary mb-2" (click)="addLaboratory()">Ajouter</button>
             </div>
         </div>
     </div>
@@ -91,7 +100,7 @@
 <ng-template #templateEdit>
     <div *ngIf="currentLaboratory != null" class="addModal">
         <div class="modal-header">
-            <h5 class="text-center modal-title pull-left">Modification du laboratoire {{ currentLaboratory.name }} </h5>
+            <h6 class="text-center modal-title pull-left">Modification du laboratoire : {{ currentLaboratory.laboratory.name }} </h6>
             <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalEditRef?.hide()">
                 <span aria-hidden="true" class="visually-hidden">&times;</span>
             </button>
@@ -100,15 +109,15 @@
             <div>
                 <div class="form-group">
                     <label for="">Nom du laboratoire</label>
-                    <input [(ngModel)]="currentLaboratory.name" type="text" class="form-control" placeholder="Nom du laboratoire">
+                    <input [(ngModel)]="currentLaboratory.laboratory.name" type="text" class="form-control form-control-sm" placeholder="Nom du laboratoire">
                 </div>
                 <div class="form-group">
                     <label for="">Numéro de téléphone du laboratoire</label>
-                    <input [(ngModel)]="currentLaboratory.phone" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">
+                    <input [(ngModel)]="currentLaboratory.laboratory.phone" type="text" class="form-control form-control-sm" placeholder="Numéro de téléphone du laboratoire">
                 </div>
                 <div class="form-group">
                     <label for="">Adresse du laboratoire</label>
-                    <input [(ngModel)]="currentLaboratory.address" type="text" class="form-control" placeholder="Numéro de téléphone du laboratoire">
+                    <input [(ngModel)]="currentLaboratory.laboratory.address" type="text" class="form-control form-control-sm" placeholder="Numéro de téléphone du laboratoire">
                 </div>
                 <!-- <div class="form-group">
                     <label for="">Id </label>
@@ -119,15 +128,15 @@
                     <input type="text" [(ngModel)] = "currentLaboratory.responsable" class="form-control" placeholder="Nom du laboratoire">
                 </div> -->
                 <div class="form-group">
-                    <label for="inputStateEdit">Responsable du laboratoire </label>
-                    <select [(ngModel)]="selectedResponsableId" id="inputStateEdit" class="form-control">
+                    <!-- <label for="inputStateEdit">Responsable du laboratoire </label> -->
+                    <!-- <select [(ngModel)]="selectedResponsableId" id="inputStateEdit" class="form-control">
                       <option  *ngFor="let responsable of responsables;let i=index" [ngValue]="responsable.id">{{ responsable.name  +" "+ responsable.firstname}} </option>
                     </select>
                     <small *ngIf="responsables.length==0" style="color: red !important;" id="emailHelp" class="form-text text-muted">
                         Aucun responsable disponible pour le moment *.
-                    </small>
+                    </small> -->
                     <small class="form-text text-muted">
-                        Actuel responsable : <span style="font-weight: bold;"> {{ currentLaboratory.responsable.name +" "+ currentLaboratory.responsable.firstname}} </span>
+                      Responsable du laboratoire : <span style="font-weight: bold;"> {{ currentLaboratory.responsable.name +" "+ currentLaboratory.responsable.firstname}} </span>
                     </small>
                 </div>
                 <button type="submit" class="btn btn-primary" (click)="editLaboratory()">Modifier</button>

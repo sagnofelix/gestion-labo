@@ -19,14 +19,13 @@ export class HeaderComponent implements OnInit {
   onSignOut(){
     this.authService.signOut()
     this.router.navigate(['login'])
-    console.log(this.authService.isAuthenticated)
   }
 
   search(){
 
   }
 
-  showLaboLink() : boolean {
+  showAdminLink() : boolean {
     return this.authService.user.type=="Administrateur"
   }
 
@@ -34,7 +33,7 @@ export class HeaderComponent implements OnInit {
     return this.authService.user.type=="Responsable"
   }
 
-  showEmploye() : boolean {
+  showEmployeLink() : boolean {
     return this.authService.user.type=="Employé"
   }
 

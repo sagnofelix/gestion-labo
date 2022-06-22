@@ -48,7 +48,7 @@ export class LaboratoryService {
 
   delete(id:number){
     //get responsables from api
-    return this.http.get<any[]>(this.apiBaseUrl+'laboratories/delete?id='+id)
+    return this.http.get<any[]>(this.apiBaseUrl+'laboratories/delete/'+id)
   }
 
   getItemByIndex(index : number) : undefined | any{
